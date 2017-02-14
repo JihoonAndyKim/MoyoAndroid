@@ -79,6 +79,7 @@ public class FeaturesActivity extends AppCompatActivity {
 		if (!ensureBLEExists())
 			finish();
 
+
 		final DrawerLayout drawer = mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 

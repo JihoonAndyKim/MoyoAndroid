@@ -1,23 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:orientation="vertical"
     tools:context=".pro.ProfileActivity">
 
     <include
         android:id="@+id/toolbar_actionbar"
         layout="@layout/toolbar"/>
-
-    <EditText android:id="@+id/age"
-        android:layout_width="wrap_content"
+    <TextView
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:inputType="number"
-        android:hint="Put in your age" />
+        android:text="Phone Number"
+        android:textSize="30sp"/>
+    <EditText
+        android:id="@+id/txtPhoneNo"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        />
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Message"
+        android:textSize="30sp" />
+    <EditText
+        android:id="@+id/txtMessage"
+        android:layout_width="fill_parent"
+        android:layout_height="350px"
+        android:gravity="top"
+        />
     <Button
-        android:layout_width="wrap_content"
+        android:id="@+id/btnSendSMS"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Submit" />
-
+        android:text="Send SMS"
+        />
 </LinearLayout>
