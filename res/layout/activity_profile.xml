@@ -10,4 +10,14 @@
         android:id="@+id/toolbar_actionbar"
         layout="@layout/toolbar"/>
 
+    <EditText android:id="@+id/age"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="Put in your age" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Submit" />
+
 </LinearLayout>
