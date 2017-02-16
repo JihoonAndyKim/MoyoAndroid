@@ -28,6 +28,7 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -78,6 +79,9 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 		mLineGraph = LineGraphView.getLineGraphView();
 		mHRSValue = (TextView) findViewById(R.id.text_hrs_value);
 		mHRSPosition = (TextView) findViewById(R.id.text_hrs_position);
+
+		//Set this to be invisible
+		mHRSPosition.setVisibility(View.INVISIBLE);
 		showGraph();
 	}
 
