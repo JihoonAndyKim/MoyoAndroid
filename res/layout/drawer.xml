@@ -44,6 +44,7 @@
 			android:layout_height="wrap_content"
 			android:orientation="vertical">
 
+			<!--
 			<TextView
 				android:id="@+id/link_mcp"
 				style="@style/DrawerItem"
@@ -55,7 +56,7 @@
 				android:paddingEnd="@dimen/navdrawer_padding_horiz"
 				android:paddingStart="@dimen/navdrawer_padding_horiz"
 				android:text="@string/drawer_plugin_nrf_connect"/>
-
+			-->
 		</LinearLayout>
 
 	</LinearLayout>

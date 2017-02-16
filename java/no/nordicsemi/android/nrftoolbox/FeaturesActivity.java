@@ -79,6 +79,7 @@ public class FeaturesActivity extends AppCompatActivity {
 		if (!ensureBLEExists())
 			finish();
 
+
 		final DrawerLayout drawer = mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
@@ -165,6 +166,7 @@ public class FeaturesActivity extends AppCompatActivity {
 		nrfConnectIntent.setClassName(NRF_CONNECT_PACKAGE, NRF_CONNECT_CLASS);
 		final ResolveInfo nrfConnectInfo = pm.resolveActivity(nrfConnectIntent, 0);
 
+		/*
 		// configure link to nRF Connect
 		final TextView nrfConnectItem = (TextView) container.findViewById(R.id.link_mcp);
 		if (nrfConnectInfo == null) {
@@ -189,6 +191,7 @@ public class FeaturesActivity extends AppCompatActivity {
 				mDrawerLayout.closeDrawers();
 			}
 		});
+		*/
 
 		// look for other plug-ins
 		final Intent utilsIntent = new Intent(Intent.ACTION_MAIN);
