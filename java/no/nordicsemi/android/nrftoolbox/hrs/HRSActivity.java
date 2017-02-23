@@ -216,6 +216,9 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 						Toast.makeText(getBaseContext(), "Please enter both phone number and message.", Toast.LENGTH_SHORT).show();
 					trigger = false;
 				}
+				if(value < 290) {
+					trigger = true;
+				}
 			}
 		});
 	}
@@ -281,9 +284,14 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 		mHrmValue = 0;
 	}
 
-	private void sendSMS(String phoneNumber, String message){
-		PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(this, HRSActivity.class), 0);
-		SmsManager sms = SmsManager.getDefault();
-		sms.sendTextMessage(phoneNumber, null, message, pi, null);
+	public void sendSMS(String phoneNo, String msg) {
+		try {
+			SmsManager smsManager = SmsManager.getDefault();
+			smsManager.sendTextMessage(phoneNo, null, msg, null, null);
+		} catch (Exception ex) {
+			Toast.makeText(getApplicationContext(),ex.getMessage().toString(),
+					Toast.LENGTH_LONG).show();
+			ex.printStackTrace();
+		}
 	}
 }
