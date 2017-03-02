@@ -21,15 +21,19 @@
  */
 package no.nordicsemi.android.nrftoolbox.hrs;
 
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.telephony.SmsManager;
 import android.view.View;
 import android.view.ViewGroup;
@@ -256,6 +260,12 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 
 	@Override
 	public void onDeviceDisconnected(final BluetoothDevice device) {
+		Snackbar.make(findViewById(R.id.myCoordinatorLayout), "Moyo has disconnected with the application",
+				Snackbar.LENGTH_SHORT)
+				.show();
+
+		sendNotification();
+
 		super.onDeviceDisconnected(device);
 		runOnUiThread(new Runnable() {
 			@Override
@@ -285,5 +295,29 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 		PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(this, HRSActivity.class), 0);
 		SmsManager sms = SmsManager.getDefault();
 		sms.sendTextMessage(phoneNumber, null, message, pi, null);
+	}
+
+	private void sendNotification() {
+		NotificationCompat.Builder mBuilder =
+				new NotificationCompat.Builder(this)
+						.setSmallIcon(R.drawable.moyo_logo_small)
+						.setContentTitle("Moyo Notification")
+						.setContentText("The application has disconnected from Moyo. Please " +
+								"reconnect by opening the app and connecting to the device");
+
+		Intent resultIntent = new Intent(this, HRSActivity.class);
+
+		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+		stackBuilder.addParentStack(HRSActivity.class);
+		stackBuilder.addNextIntent(resultIntent);
+		PendingIntent resultPendingIntent =
+				stackBuilder.getPendingIntent(
+						0,
+						PendingIntent.FLAG_UPDATE_CURRENT
+				);
+		mBuilder.setContentIntent(resultPendingIntent);
+		NotificationManager mNotificationManager =
+				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager.notify(0, mBuilder.build());
 	}
 }
