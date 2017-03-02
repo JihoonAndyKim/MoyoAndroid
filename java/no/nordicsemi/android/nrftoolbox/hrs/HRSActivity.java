@@ -21,16 +21,24 @@
  */
 package no.nordicsemi.android.nrftoolbox.hrs;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
+import android.telephony.SmsManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.achartengine.GraphicalView;
 
@@ -38,6 +46,7 @@ import java.util.UUID;
 
 import no.nordicsemi.android.nrftoolbox.FeaturesActivity;
 import no.nordicsemi.android.nrftoolbox.R;
+import no.nordicsemi.android.nrftoolbox.pro.ProfileActivity;
 import no.nordicsemi.android.nrftoolbox.profile.BleManager;
 import no.nordicsemi.android.nrftoolbox.profile.BleProfileActivity;
 
@@ -61,6 +70,7 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 	private Handler mHandler = new Handler();
 
 	private boolean isGraphInProgress = false;
+	private boolean trigger = true;
 
 	private GraphicalView mGraphView;
 	private LineGraphView mLineGraph;
@@ -196,6 +206,23 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 				} else {
 					mHRSValue.setText(R.string.not_available_value);
 				}
+				if (value >= 290 && trigger) {
+
+					String phoneNo = "3039059887";
+					String message = "USER IS UNDERGOING CARDIAC ARREST";
+					if (phoneNo.length() > 0 && message.length() > 0) {
+						sendSMS(phoneNo, message);
+						Snackbar.make(findViewById(R.id.myCoordinatorLayout), "Emergency services contacted",
+								Snackbar.LENGTH_SHORT)
+								.show();
+					}
+					else
+						Toast.makeText(getBaseContext(), "Please enter both phone number and message.", Toast.LENGTH_SHORT).show();
+					trigger = false;
+				}
+				if(value < 290) {
+					trigger = true;
+				}
 			}
 		});
 	}
@@ -236,6 +263,12 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 
 	@Override
 	public void onDeviceDisconnected(final BluetoothDevice device) {
+		Snackbar.make(findViewById(R.id.myCoordinatorLayout), "Moyo has disconnected with the application",
+				Snackbar.LENGTH_SHORT)
+				.show();
+
+		sendNotification();
+
 		super.onDeviceDisconnected(device);
 		runOnUiThread(new Runnable() {
 			@Override
@@ -259,5 +292,40 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 		mGraphView.repaint();
 		mCounter = 0;
 		mHrmValue = 0;
+	}
+
+	public void sendSMS(String phoneNo, String msg) {
+		try {
+			SmsManager smsManager = SmsManager.getDefault();
+			smsManager.sendTextMessage(phoneNo, null, msg, null, null);
+		} catch (Exception ex) {
+			Toast.makeText(getApplicationContext(),ex.getMessage().toString(),
+					Toast.LENGTH_LONG).show();
+			ex.printStackTrace();
+		}
+	}
+
+	private void sendNotification() {
+		NotificationCompat.Builder mBuilder =
+				new NotificationCompat.Builder(this)
+						.setSmallIcon(R.drawable.moyo_logo_small)
+						.setContentTitle("Moyo Notification")
+						.setContentText("The application has disconnected from Moyo. Please " +
+								"reconnect by opening the app and connecting to the device");
+
+		Intent resultIntent = new Intent(this, HRSActivity.class);
+
+		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+		stackBuilder.addParentStack(HRSActivity.class);
+		stackBuilder.addNextIntent(resultIntent);
+		PendingIntent resultPendingIntent =
+				stackBuilder.getPendingIntent(
+						0,
+						PendingIntent.FLAG_UPDATE_CURRENT
+				);
+		mBuilder.setContentIntent(resultPendingIntent);
+		NotificationManager mNotificationManager =
+				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager.notify(0, mBuilder.build());
 	}
 }
