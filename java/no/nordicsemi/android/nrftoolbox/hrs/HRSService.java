@@ -67,17 +67,19 @@ public class HRSService extends BleProfileService implements HRSManagerCallbacks
         return mBinder;
     }
 
-    /*
+    @Override
     protected BleManager<HRSManagerCallbacks> initializeManager() {
         return mManager = new HRSManager(this);
     }
-    */
+
+
+    /*
     @Override
     protected BleManager<HRSManagerCallbacks> initializeManager() {
         final HRSManager mManager = HRSManager.getInstance(getApplicationContext());
         mManager.setGattCallbacks(this);
         return mManager;
-    }
+    }*/
 
 
     @Override

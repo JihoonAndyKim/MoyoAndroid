@@ -28,6 +28,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,6 +36,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +49,7 @@ import java.util.UUID;
 
 import no.nordicsemi.android.nrftoolbox.FeaturesActivity;
 import no.nordicsemi.android.nrftoolbox.R;
+import no.nordicsemi.android.nrftoolbox.hrs.HRSService;
 import no.nordicsemi.android.nrftoolbox.hts.HTSService;
 import no.nordicsemi.android.nrftoolbox.pro.ProfileActivity;
 import no.nordicsemi.android.nrftoolbox.profile.BleManager;
@@ -83,11 +86,28 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 	private int mHrmValue = 0;
 	private int mCounter = 0;
 
+	private static final String VALUE = "value";
+	private int mValueC;
+	private static final String POSITION = "position";
+	private String mPosC;
+
 	@Override
 	protected void onCreateView(final Bundle savedInstanceState) {
 		setContentView(R.layout.activity_feature_hrs);
 		setGUI();
 	}
+
+	@Override
+	protected void onInitialize(final Bundle savedInstanceState) {
+		LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, makeIntentFilter());
+
+		if (savedInstanceState != null) {
+			if (savedInstanceState.containsKey(VALUE))
+				mValueC = savedInstanceState.getInt(VALUE);
+				mPosC = savedInstanceState.getString(POSITION);
+		}
+	}
+
 
 	private void setGUI() {
 		mLineGraph = LineGraphView.getLineGraphView();
@@ -149,6 +169,7 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
 
 		stopShowGraph();
 	}
@@ -319,7 +340,7 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 		public void onReceive(final Context context, final Intent intent) {
 			final String action = intent.getAction();
 
-			if (HTSService.BROADCAST_HTS_MEASUREMENT.equals(action)) {
+			if (HRSService.BROADCAST_HRS_MEASUREMENT.equals(action)) {
 				final int value = intent.getIntExtra(HRSService.HRS_VALUE, 0);
 				final String position = intent.getStringExtra(HRSService.HRS_POSITION);
 				// Update GUI
@@ -363,5 +384,11 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 		NotificationManager mNotificationManager =
 				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotificationManager.notify(0, mBuilder.build());
+	}
+
+	private static IntentFilter makeIntentFilter() {
+		final IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(HRSService.BROADCAST_HRS_MEASUREMENT);
+		return intentFilter;
 	}
 }
