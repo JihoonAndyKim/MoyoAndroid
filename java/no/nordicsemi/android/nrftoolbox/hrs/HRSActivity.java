@@ -25,6 +25,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
@@ -46,16 +47,19 @@ import java.util.UUID;
 
 import no.nordicsemi.android.nrftoolbox.FeaturesActivity;
 import no.nordicsemi.android.nrftoolbox.R;
+import no.nordicsemi.android.nrftoolbox.hts.HTSService;
 import no.nordicsemi.android.nrftoolbox.pro.ProfileActivity;
 import no.nordicsemi.android.nrftoolbox.profile.BleManager;
 import no.nordicsemi.android.nrftoolbox.profile.BleProfileActivity;
+import no.nordicsemi.android.nrftoolbox.profile.BleProfileService;
+import no.nordicsemi.android.nrftoolbox.profile.BleProfileServiceReadyActivity;
 
 /**
  * HRSActivity is the main Heart rate activity. It implements HRSManagerCallbacks to receive callbacks from HRSManager class. The activity supports portrait and landscape orientations. The activity
  * uses external library AChartEngine to show real time graph of HR values.
  */
 // TODO The HRSActivity should be rewritten to use the service approach, like other do.
-public class HRSActivity extends BleProfileActivity implements HRSManagerCallbacks {
+public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBinder> {
 	@SuppressWarnings("unused")
 	private final String TAG = "HRSActivity";
 
@@ -138,6 +142,11 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+	}
+
+	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 
@@ -170,6 +179,11 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 		mGraphView.repaint();
 	}
 
+	@Override
+	protected Class<? extends BleProfileService> getServiceClass() {
+		return HRSService.class;
+	}
+
 	private Runnable mRepeatTask = new Runnable() {
 		@Override
 		public void run() {
@@ -191,11 +205,15 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 	}
 
 	@Override
-	protected BleManager<HRSManagerCallbacks> initializeManager() {
-		final HRSManager manager = HRSManager.getInstance(getApplicationContext());
-		manager.setGattCallbacks(this);
-		return manager;
+	protected void onServiceBinded(final HRSService.RSCBinder binder) {
+		// not used
 	}
+
+	@Override
+	protected void onServiceUnbinded() {
+		// not used
+	}
+
 
 	private void setHRSValueOnView(final int value) {
 		runOnUiThread(new Runnable() {
@@ -250,6 +268,7 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 		startShowGraph();
 	}
 
+	/*
 	@Override
 	public void onHRSensorPositionFound(final BluetoothDevice device, final String position) {
 		setHRSPositionOnView(position);
@@ -260,6 +279,7 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 		mHrmValue = value;
 		setHRSValueOnView(mHrmValue);
 	}
+	*/
 
 	@Override
 	public void onDeviceDisconnected(final BluetoothDevice device) {
@@ -293,6 +313,22 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 		mCounter = 0;
 		mHrmValue = 0;
 	}
+
+	private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(final Context context, final Intent intent) {
+			final String action = intent.getAction();
+
+			if (HTSService.BROADCAST_HTS_MEASUREMENT.equals(action)) {
+				final int value = intent.getIntExtra(HRSService.HRS_VALUE, 0);
+				final String position = intent.getStringExtra(HRSService.HRS_POSITION);
+				// Update GUI
+				setHRSPositionOnView(position);
+				setHRSValueOnView(value);
+			}
+		}
+	};
+
 
 	public void sendSMS(String phoneNo, String msg) {
 		try {
