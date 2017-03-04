@@ -245,6 +245,7 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 				} else {
 					mHRSValue.setText(R.string.not_available_value);
 				}
+				/*
 				if (value >= 290 && trigger) {
 
 					String phoneNo = "3039059887";
@@ -261,7 +262,7 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 				}
 				if(value < 290) {
 					trigger = true;
-				}
+				}*/
 			}
 		});
 	}
