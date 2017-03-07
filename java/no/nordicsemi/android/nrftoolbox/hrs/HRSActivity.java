@@ -38,6 +38,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -45,6 +46,7 @@ import android.widget.Toast;
 
 import org.achartengine.GraphicalView;
 
+import java.util.Random;
 import java.util.UUID;
 
 import no.nordicsemi.android.nrftoolbox.FeaturesActivity;
@@ -56,6 +58,11 @@ import no.nordicsemi.android.nrftoolbox.profile.BleManager;
 import no.nordicsemi.android.nrftoolbox.profile.BleProfileActivity;
 import no.nordicsemi.android.nrftoolbox.profile.BleProfileService;
 import no.nordicsemi.android.nrftoolbox.profile.BleProfileServiceReadyActivity;
+
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 /**
  * HRSActivity is the main Heart rate activity. It implements HRSManagerCallbacks to receive callbacks from HRSManager class. The activity supports portrait and landscape orientations. The activity
@@ -85,11 +92,16 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 
 	private int mHrmValue = 0;
 	private int mCounter = 0;
+	private double mTimeCounter = 0d;
 
 	private static final String VALUE = "value";
 	private int mValueC;
 	private static final String POSITION = "position";
 	private String mPosC;
+
+	LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
+	private int countOnPlot = 20;
+	DataPoint[] values = new DataPoint[countOnPlot];
 
 	@Override
 	protected void onCreateView(final Bundle savedInstanceState) {
@@ -110,7 +122,16 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 
 
 	private void setGUI() {
-		mLineGraph = LineGraphView.getLineGraphView();
+		//mLineGraph = LineGraphView.getLineGraphView();
+		GraphView graph = (GraphView) findViewById(R.id.graph_hrs);
+		GridLabelRenderer glr = graph.getGridLabelRenderer();
+		glr.setPadding(64); // should allow for 3 digits to fit on screen
+		graph.addSeries(series);
+		graph.getViewport().setXAxisBoundsManual(true);
+		graph.getViewport().setMinX(0);
+		graph.getViewport().setMaxX(10);
+		graph.getViewport().setScalable(true); // enables horizontal zooming and scrolling
+
 		mHRSValue = (TextView) findViewById(R.id.text_hrs_value);
 		mHRSPosition = (TextView) findViewById(R.id.text_hrs_position);
 
@@ -120,9 +141,9 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 	}
 
 	private void showGraph() {
-		mGraphView = mLineGraph.getView(this);
-		ViewGroup layout = (ViewGroup) findViewById(R.id.graph_hrs);
-		layout.addView(mGraphView);
+		//mGraphView = mLineGraph.getView(this);
+		//ViewGroup layout = (ViewGroup) findViewById(R.id.graph_hrs);
+		//layout.addView(mGraphView);
 	}
 
 	@Override
@@ -196,8 +217,6 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 
 	private void updateGraph(final int hrmValue) {
 		mCounter++;
-		mLineGraph.addValue(new Point(mCounter, hrmValue));
-		mGraphView.repaint();
 	}
 
 	@Override
@@ -245,6 +264,10 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 				} else {
 					mHRSValue.setText(R.string.not_available_value);
 				}
+
+				mTimeCounter += 1d;
+				//updateData(value);
+				series.appendData(new DataPoint(mTimeCounter, (double) value), true, 30);
 				/*
 				if (value >= 290 && trigger) {
 
@@ -263,6 +286,7 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 				if(value < 290) {
 					trigger = true;
 				}*/
+
 			}
 		});
 	}
@@ -330,8 +354,8 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 	}
 
 	private void clearGraph() {
-		mLineGraph.clearGraph();
-		mGraphView.repaint();
+		//mLineGraph.clearGraph();
+		//mGraphView.repaint();
 		mCounter = 0;
 		mHrmValue = 0;
 	}
@@ -392,4 +416,5 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 		intentFilter.addAction(HRSService.BROADCAST_HRS_MEASUREMENT);
 		return intentFilter;
 	}
+
 }
