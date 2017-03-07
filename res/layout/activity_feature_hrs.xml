@@ -131,6 +131,7 @@
 				android:text="@string/hrs_position_label"
 				android:textSize="16sp"/>
 			-->
+			<!--
 			<FrameLayout
 				android:id="@+id/graph_hrs"
 				android:layout_width="match_parent"
@@ -138,7 +139,16 @@
 				android:layout_below="@id/text_hrs_position"
 				android:layout_marginLeft="@dimen/feature_horizontal_margin"
 				android:layout_marginRight="@dimen/feature_horizontal_margin"
-				android:layout_marginTop="10dp"/>
+				android:layout_marginTop="10dp"/>-->
+
+			<com.jjoe64.graphview.GraphView
+				android:id="@+id/graph_hrs"
+				android:layout_width="match_parent"
+				android:layout_height="220dp"
+				android:layout_below="@id/text_hrs_position"
+				android:layout_marginLeft="@dimen/feature_horizontal_margin"
+				android:layout_marginRight="@dimen/feature_horizontal_margin"
+				android:layout_marginTop="25dp" />
 
 			<Button
 				android:id="@+id/action_connect"

@@ -274,6 +274,10 @@
 			android:name="no.nordicsemi.android.nrftoolbox.uart.UARTService"
 			android:label="@string/uart_feature_title" />
         -->
+        <service
+            android:name="no.nordicsemi.android.nrftoolbox.hrs.HRSService"
+            android:label="@string/hts_feature_title" />
+
         <service android:name=".wearable.MainWearableListenerService">
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
