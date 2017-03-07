@@ -18,7 +18,10 @@ import no.nordicsemi.android.nrftoolbox.R;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "ProfileData";
+    public static final String Name = "nameKey";
+    public static final String Sex = "sexKey";
+    public static final String Age = "ageKey";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,10 +32,16 @@ public class ProfileActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        name_editText=(EditText)findViewById(R.id.name_editText);
+        sex_editText=(EditText)findViewById(R.id.sex_editText);
+        age_editText=(EditText)findViewById(R.id.age_editText);
+        edit_button=(Button)findViewById(R.id.edit_button);
+
 
         // Restore preferences
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        boolean silent = settings.getBoolean("silentMode", false);
+
+
 
     }
 
