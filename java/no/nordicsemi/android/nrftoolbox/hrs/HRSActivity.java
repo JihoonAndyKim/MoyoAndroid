@@ -25,8 +25,10 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,7 +36,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -42,20 +46,30 @@ import android.widget.Toast;
 
 import org.achartengine.GraphicalView;
 
+import java.util.Random;
 import java.util.UUID;
 
 import no.nordicsemi.android.nrftoolbox.FeaturesActivity;
 import no.nordicsemi.android.nrftoolbox.R;
+import no.nordicsemi.android.nrftoolbox.hrs.HRSService;
+import no.nordicsemi.android.nrftoolbox.hts.HTSService;
 import no.nordicsemi.android.nrftoolbox.pro.ProfileActivity;
 import no.nordicsemi.android.nrftoolbox.profile.BleManager;
 import no.nordicsemi.android.nrftoolbox.profile.BleProfileActivity;
+import no.nordicsemi.android.nrftoolbox.profile.BleProfileService;
+import no.nordicsemi.android.nrftoolbox.profile.BleProfileServiceReadyActivity;
+
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 /**
  * HRSActivity is the main Heart rate activity. It implements HRSManagerCallbacks to receive callbacks from HRSManager class. The activity supports portrait and landscape orientations. The activity
  * uses external library AChartEngine to show real time graph of HR values.
  */
 // TODO The HRSActivity should be rewritten to use the service approach, like other do.
-public class HRSActivity extends BleProfileActivity implements HRSManagerCallbacks {
+public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBinder> {
 	@SuppressWarnings("unused")
 	private final String TAG = "HRSActivity";
 
@@ -78,6 +92,16 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 
 	private int mHrmValue = 0;
 	private int mCounter = 0;
+	private double mTimeCounter = 0d;
+
+	private static final String VALUE = "value";
+	private int mValueC;
+	private static final String POSITION = "position";
+	private String mPosC;
+
+	LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
+	private int countOnPlot = 20;
+	DataPoint[] values = new DataPoint[countOnPlot];
 
 	@Override
 	protected void onCreateView(final Bundle savedInstanceState) {
@@ -85,8 +109,29 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 		setGUI();
 	}
 
+	@Override
+	protected void onInitialize(final Bundle savedInstanceState) {
+		LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, makeIntentFilter());
+
+		if (savedInstanceState != null) {
+			if (savedInstanceState.containsKey(VALUE))
+				mValueC = savedInstanceState.getInt(VALUE);
+				mPosC = savedInstanceState.getString(POSITION);
+		}
+	}
+
+
 	private void setGUI() {
-		mLineGraph = LineGraphView.getLineGraphView();
+		//mLineGraph = LineGraphView.getLineGraphView();
+		GraphView graph = (GraphView) findViewById(R.id.graph_hrs);
+		GridLabelRenderer glr = graph.getGridLabelRenderer();
+		glr.setPadding(64); // should allow for 3 digits to fit on screen
+		graph.addSeries(series);
+		graph.getViewport().setXAxisBoundsManual(true);
+		graph.getViewport().setMinX(0);
+		graph.getViewport().setMaxX(10);
+		graph.getViewport().setScalable(true); // enables horizontal zooming and scrolling
+
 		mHRSValue = (TextView) findViewById(R.id.text_hrs_value);
 		mHRSPosition = (TextView) findViewById(R.id.text_hrs_position);
 
@@ -96,9 +141,9 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 	}
 
 	private void showGraph() {
-		mGraphView = mLineGraph.getView(this);
-		ViewGroup layout = (ViewGroup) findViewById(R.id.graph_hrs);
-		layout.addView(mGraphView);
+		//mGraphView = mLineGraph.getView(this);
+		//ViewGroup layout = (ViewGroup) findViewById(R.id.graph_hrs);
+		//layout.addView(mGraphView);
 	}
 
 	@Override
@@ -138,8 +183,14 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+	}
+
+	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
 
 		stopShowGraph();
 	}
@@ -166,8 +217,11 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 
 	private void updateGraph(final int hrmValue) {
 		mCounter++;
-		mLineGraph.addValue(new Point(mCounter, hrmValue));
-		mGraphView.repaint();
+	}
+
+	@Override
+	protected Class<? extends BleProfileService> getServiceClass() {
+		return HRSService.class;
 	}
 
 	private Runnable mRepeatTask = new Runnable() {
@@ -191,11 +245,15 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 	}
 
 	@Override
-	protected BleManager<HRSManagerCallbacks> initializeManager() {
-		final HRSManager manager = HRSManager.getInstance(getApplicationContext());
-		manager.setGattCallbacks(this);
-		return manager;
+	protected void onServiceBinded(final HRSService.RSCBinder binder) {
+		// not used
 	}
+
+	@Override
+	protected void onServiceUnbinded() {
+		// not used
+	}
+
 
 	private void setHRSValueOnView(final int value) {
 		runOnUiThread(new Runnable() {
@@ -206,6 +264,11 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 				} else {
 					mHRSValue.setText(R.string.not_available_value);
 				}
+
+				mTimeCounter += 1d;
+				//updateData(value);
+				series.appendData(new DataPoint(mTimeCounter, (double) value), true, 30);
+				/*
 				if (value >= 290 && trigger) {
 
 					String phoneNo = "3039059887";
@@ -222,7 +285,8 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 				}
 				if(value < 290) {
 					trigger = true;
-				}
+				}*/
+
 			}
 		});
 	}
@@ -250,6 +314,7 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 		startShowGraph();
 	}
 
+	/*
 	@Override
 	public void onHRSensorPositionFound(final BluetoothDevice device, final String position) {
 		setHRSPositionOnView(position);
@@ -260,6 +325,7 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 		mHrmValue = value;
 		setHRSValueOnView(mHrmValue);
 	}
+	*/
 
 	@Override
 	public void onDeviceDisconnected(final BluetoothDevice device) {
@@ -288,11 +354,27 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 	}
 
 	private void clearGraph() {
-		mLineGraph.clearGraph();
-		mGraphView.repaint();
+		//mLineGraph.clearGraph();
+		//mGraphView.repaint();
 		mCounter = 0;
 		mHrmValue = 0;
 	}
+
+	private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(final Context context, final Intent intent) {
+			final String action = intent.getAction();
+
+			if (HRSService.BROADCAST_HRS_MEASUREMENT.equals(action)) {
+				final int value = intent.getIntExtra(HRSService.HRS_VALUE, 0);
+				final String position = intent.getStringExtra(HRSService.HRS_POSITION);
+				// Update GUI
+				setHRSPositionOnView(position);
+				setHRSValueOnView(value);
+			}
+		}
+	};
+
 
 	public void sendSMS(String phoneNo, String msg) {
 		try {
@@ -328,4 +410,11 @@ public class HRSActivity extends BleProfileActivity implements HRSManagerCallbac
 				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotificationManager.notify(0, mBuilder.build());
 	}
+
+	private static IntentFilter makeIntentFilter() {
+		final IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(HRSService.BROADCAST_HRS_MEASUREMENT);
+		return intentFilter;
+	}
+
 }
