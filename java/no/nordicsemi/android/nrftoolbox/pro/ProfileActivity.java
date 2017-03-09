@@ -22,11 +22,12 @@ public class ProfileActivity extends AppCompatActivity {
     public static final String Name = "nameKey";
     public static final String Gender = "genderKey";
     public static final String Age = "ageKey";
+    public static final String Med = "medKey";
     public static final String Missing = "Missing";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        final EditText name_editText,gender_editText,age_editText;
+        final EditText name_editText,gender_editText,age_editText,med_editText;
         Button edit_button;
 
         super.onCreate(savedInstanceState);
@@ -39,6 +40,7 @@ public class ProfileActivity extends AppCompatActivity {
         name_editText=(EditText)findViewById(R.id.name_editText);
         gender_editText=(EditText)findViewById(R.id.gender_editText);
         age_editText=(EditText)findViewById(R.id.age_editText);
+        med_editText=(EditText)findViewById(R.id.med_editText);
         edit_button=(Button)findViewById(R.id.edit_button);
 
         // Restore preferences
@@ -47,6 +49,8 @@ public class ProfileActivity extends AppCompatActivity {
         String n = settings.getString(Name, Missing);
         String g = settings.getString(Gender, Missing);
         String a = settings.getString(Age, Missing);
+        String m = settings.getString(Med, Missing);
+
 
         if (!n.equals(Missing)){
             name_editText.setText(n);
@@ -73,12 +77,14 @@ public class ProfileActivity extends AppCompatActivity {
                 String n  = name_editText.getText().toString();
                 String g  = gender_editText.getText().toString();
                 String a  = age_editText.getText().toString();
+                String m = med_editText.getText().toString();
 
                 SharedPreferences.Editor editor = settings.edit();
 
                 editor.putString(Name, n);
                 editor.putString(Gender, g);
                 editor.putString(Age, a);
+                editor.putString(Med, m);
                 editor.apply();
                 Toast.makeText(ProfileActivity.this,"Thanks",Toast.LENGTH_LONG).show();
             }
