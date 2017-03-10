@@ -99,6 +99,12 @@
 		<item name="android:paddingRight">40dp</item>
 	</style>
 
+	<style name="Widget.ActionMode">
+		<item name="android:background">@color/actionBarColor</item>
+		<item name="android:backgroundSplit">@color/actionBarColorDark</item>
+		<item name="android:height">200dp</item>
+	</style>
+
 	<style name="TextAppearanceTitle" parent="@style/TextAppearance.AppCompat.Caption">
 		<item name="android:textColor">?attr/colorAccent</item>
 		<item name="android:textStyle">bold</item>
@@ -121,11 +127,11 @@
 		<item name="colorAccent">@color/actionBarColorDark</item>
 		<item name="buttonStyle">@style/Widget.Button</item>
 		<item name="android:spinnerStyle">@style/Widget.AppCompat.Spinner</item> <!-- Required on pre-Lollipop to draw new spinner. -->
+		<item name="windowActionModeOverlay">true</item>
 	</style>
 
 	<style name="AppTheme" parent="@style/AppThemeBase">
-		<item name="android:selectableItemBackground">@drawable/abc_item_background_holo_light
-		</item>
+		<item name="android:selectableItemBackground">@drawable/abc_item_background_holo_light</item>
 	</style>
 
 	<style name="AppTheme.TranslucentStatusBar">

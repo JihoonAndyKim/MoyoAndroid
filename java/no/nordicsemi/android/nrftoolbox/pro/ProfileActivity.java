@@ -6,8 +6,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -25,8 +28,12 @@ public class ProfileActivity extends AppCompatActivity {
     public static final String Med = "medKey";
     public static final String Missing = "Missing";
 
+    String editingField;
+    Object mActionMode;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         final EditText name_editText,gender_editText,age_editText,med_editText;
         Button edit_button;
 
@@ -90,7 +97,50 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        name_editText.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                editingField = "Name";
+
+                if(mActionMode != null){
+                    return false;
+                }
+                mActionMode = ProfileActivity.this.startSupportActionMode(mActionModeCallback);
+                return true;
+            }
+        });
+
+
     }
+
+    // TODO: Finish up the functionality of the contextual action bar
+    
+    private ActionMode.Callback mActionModeCallback = new ActionMode.Callback(){
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu){
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode){
+
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu){
+            mode.setTitle(editingField);
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.profile_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item){
+
+            return false;
+        }
+
+    };
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
