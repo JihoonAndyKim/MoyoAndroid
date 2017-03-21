@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/profile_Layout"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".pro.ProfileActivity">
+    tools:context=".pro.ProfileActivity"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
     <include
         android:id="@+id/toolbar_actionbar"
         layout="@layout/toolbar"/>

@@ -9,12 +9,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
+import android.text.Layout;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import no.nordicsemi.android.nrftoolbox.R;
@@ -28,14 +30,16 @@ public class ProfileActivity extends AppCompatActivity {
     public static final String Med = "medKey";
     public static final String Missing = "Missing";
 
+    SharedPreferences settings;
+    EditText name_editText,gender_editText,age_editText,med_editText;
+    LinearLayout profile_layout;
+    Button edit_button;
+
     String editingField;
     Object mActionMode;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
-        final EditText name_editText,gender_editText,age_editText,med_editText;
-        Button edit_button;
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
@@ -44,6 +48,7 @@ public class ProfileActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        profile_layout = (LinearLayout) findViewById(R.id.profile_Layout);
         name_editText=(EditText)findViewById(R.id.name_editText);
         gender_editText=(EditText)findViewById(R.id.gender_editText);
         age_editText=(EditText)findViewById(R.id.age_editText);
@@ -51,7 +56,7 @@ public class ProfileActivity extends AppCompatActivity {
         edit_button=(Button)findViewById(R.id.edit_button);
 
         // Restore preferences
-        final SharedPreferences settings = getSharedPreferences(MyPREFS, MODE_PRIVATE);
+        settings = getSharedPreferences(MyPREFS, MODE_PRIVATE);
 
         String n = settings.getString(Name, Missing);
         String g = settings.getString(Gender, Missing);
@@ -77,44 +82,53 @@ public class ProfileActivity extends AppCompatActivity {
         else {
             age_editText.setHint(R.string.profile_age_hint);
         }
+        if (!m.equals(Missing)){
+            med_editText.setText(m);
+        }
+        else {
+            med_editText.setHint(R.string.profile_med_hint);
+        }
+
+        // Make editText fields uneditable
+        name_editText.setEnabled(false);
+        gender_editText.setEnabled(false);
+        age_editText.setEnabled(false);
+        med_editText.setEnabled(false);
 
         edit_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String n  = name_editText.getText().toString();
-                String g  = gender_editText.getText().toString();
-                String a  = age_editText.getText().toString();
-                String m = med_editText.getText().toString();
+                name_editText.setEnabled(true);
+                gender_editText.setEnabled(true);
+                age_editText.setEnabled(true);
+                med_editText.setEnabled(true);
+                edit_button.setEnabled(false);
 
-                SharedPreferences.Editor editor = settings.edit();
-
-                editor.putString(Name, n);
-                editor.putString(Gender, g);
-                editor.putString(Age, a);
-                editor.putString(Med, m);
-                editor.apply();
-                Toast.makeText(ProfileActivity.this,"Thanks",Toast.LENGTH_LONG).show();
-            }
-        });
-
-        name_editText.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
                 editingField = "Name";
 
-                if(mActionMode != null){
-                    return false;
+                if(mActionMode == null){
+                    mActionMode = ProfileActivity.this.startSupportActionMode(mActionModeCallback);
                 }
-                mActionMode = ProfileActivity.this.startSupportActionMode(mActionModeCallback);
-                return true;
+
+                profile_layout.requestFocus();
+
+//                String n  = name_editText.getText().toString();
+//                String g  = gender_editText.getText().toString();
+//                String a  = age_editText.getText().toString();
+//                String m = med_editText.getText().toString();
+//
+//                SharedPreferences.Editor editor = settings.edit();
+//
+//                editor.putString(Name, n);
+//                editor.putString(Gender, g);
+//                editor.putString(Age, a);
+//                editor.putString(Med, m);
+//                editor.apply();
+//                Toast.makeText(ProfileActivity.this,"Thanks",Toast.LENGTH_LONG).show();
             }
         });
-
-
     }
 
-    // TODO: Finish up the functionality of the contextual action bar
-    
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback(){
         @Override
         public boolean onPrepareActionMode(ActionMode mode, Menu menu){
@@ -123,7 +137,25 @@ public class ProfileActivity extends AppCompatActivity {
 
         @Override
         public void onDestroyActionMode(ActionMode mode){
+            String n  = name_editText.getText().toString();
+            String g  = gender_editText.getText().toString();
+            String a  = age_editText.getText().toString();
+            String m = med_editText.getText().toString();
 
+            SharedPreferences.Editor editor = settings.edit();
+
+            editor.putString(Name, n);
+            editor.putString(Age, a);
+            editor.putString(Gender, g);
+            editor.putString(Med, m);
+            editor.apply();
+            Toast.makeText(ProfileActivity.this,"Saved!",Toast.LENGTH_LONG).show();
+
+            name_editText.setEnabled(false);
+            gender_editText.setEnabled(false);
+            age_editText.setEnabled(false);
+            med_editText.setEnabled(false);
+            edit_button.setEnabled(true);
         }
 
         @Override
@@ -136,7 +168,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item){
-
             return false;
         }
 
