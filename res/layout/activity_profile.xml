@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/profile_Layout"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,19 +9,20 @@
     android:orientation="vertical"
     tools:context=".pro.ProfileActivity"
     android:focusable="true"
+    android:clickable="true"
     android:focusableInTouchMode="true">
+
     <include
         android:id="@+id/toolbar_actionbar"
         layout="@layout/toolbar"/>
 
-    <TextView
-        android:id="@+id/profile_textView"
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/profile_feature_vertical_margin_top"
-        android:layout_marginBottom="@dimen/profile_feature_vertical_margin_bottom"
-        android:gravity="center"
-        android:text="@string/profile_title" />
+        app:srcCompat="@drawable/moyo_logo_small"
+        android:paddingTop="@dimen/profile_feature_vertical_margin_top_narrow"
+        android:paddingBottom="@dimen/profile_feature_vertical_margin_bottom_narrow"
+        android:id="@+id/imageView" />
 
     <EditText
         android:id="@+id/name_editText"

@@ -1,8 +1,10 @@
 package no.nordicsemi.android.nrftoolbox.pro;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +15,9 @@ import android.text.Layout;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -111,20 +115,39 @@ public class ProfileActivity extends AppCompatActivity {
                 }
 
                 profile_layout.requestFocus();
+            }
+        });
 
-//                String n  = name_editText.getText().toString();
-//                String g  = gender_editText.getText().toString();
-//                String a  = age_editText.getText().toString();
-//                String m = med_editText.getText().toString();
-//
-//                SharedPreferences.Editor editor = settings.edit();
-//
-//                editor.putString(Name, n);
-//                editor.putString(Gender, g);
-//                editor.putString(Age, a);
-//                editor.putString(Med, m);
-//                editor.apply();
-//                Toast.makeText(ProfileActivity.this,"Thanks",Toast.LENGTH_LONG).show();
+        name_editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+        gender_editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+        age_editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+        med_editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
             }
         });
     }
@@ -194,4 +217,11 @@ public class ProfileActivity extends AppCompatActivity {
         // Commit the edits!
         editor.apply();
     }
+
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+
 }
