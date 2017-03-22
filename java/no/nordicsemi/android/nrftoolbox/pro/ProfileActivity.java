@@ -1,27 +1,25 @@
 package no.nordicsemi.android.nrftoolbox.pro;
 
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
-import android.telephony.SmsManager;
-import android.text.Layout;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import no.nordicsemi.android.nrftoolbox.R;
 
@@ -35,10 +33,13 @@ public class ProfileActivity extends AppCompatActivity {
     public static final String Missing = "Missing";
 
     SharedPreferences settings;
-    EditText name_editText,gender_editText,age_editText,med_editText;
+    EditText name_editText,gender_editText,med_editText;
+    Spinner age_spinner;
     LinearLayout profile_layout;
     Button edit_button;
+    List<String> ageSpinnerArray = new ArrayList<String>();
 
+    int ageSpinnerPosition;
     String editingField;
     Object mActionMode;
 
@@ -55,9 +56,18 @@ public class ProfileActivity extends AppCompatActivity {
         profile_layout = (LinearLayout) findViewById(R.id.profile_Layout);
         name_editText=(EditText)findViewById(R.id.name_editText);
         gender_editText=(EditText)findViewById(R.id.gender_editText);
-        age_editText=(EditText)findViewById(R.id.age_editText);
+        age_spinner=(Spinner)findViewById(R.id.age_spinner);
         med_editText=(EditText)findViewById(R.id.med_editText);
         edit_button=(Button)findViewById(R.id.edit_button);
+
+        ageSpinnerArray.add("Select Age");
+        for(int i = 0; i <= 120; i= i+1){
+            ageSpinnerArray.add(Integer.toString(i));
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,R.layout.spinner_item,ageSpinnerArray);
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        age_spinner.setAdapter(adapter);
 
         // Restore preferences
         settings = getSharedPreferences(MyPREFS, MODE_PRIVATE);
@@ -81,10 +91,11 @@ public class ProfileActivity extends AppCompatActivity {
             gender_editText.setHint(R.string.profile_gender_hint);
         }
         if (!a.equals(Missing)){
-            age_editText.setText(a);
+            ageSpinnerPosition = adapter.getPosition(a);
+            age_spinner.setSelection(ageSpinnerPosition);
         }
         else {
-            age_editText.setHint(R.string.profile_age_hint);
+            age_spinner.setSelection(0);
         }
         if (!m.equals(Missing)){
             med_editText.setText(m);
@@ -96,19 +107,20 @@ public class ProfileActivity extends AppCompatActivity {
         // Make editText fields uneditable
         name_editText.setEnabled(false);
         gender_editText.setEnabled(false);
-        age_editText.setEnabled(false);
+        age_spinner.setEnabled(false);
         med_editText.setEnabled(false);
+        edit_button.setVisibility(View.VISIBLE);
 
         edit_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 name_editText.setEnabled(true);
                 gender_editText.setEnabled(true);
-                age_editText.setEnabled(true);
+                age_spinner.setEnabled(true);
                 med_editText.setEnabled(true);
-                edit_button.setEnabled(false);
+                edit_button.setVisibility(View.GONE);
 
-                editingField = "Name";
+                editingField = "Edit Profile";
 
                 if(mActionMode == null){
                     mActionMode = ProfileActivity.this.startSupportActionMode(mActionModeCallback);
@@ -134,7 +146,7 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             }
         });
-        age_editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        age_spinner.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
@@ -162,7 +174,7 @@ public class ProfileActivity extends AppCompatActivity {
         public void onDestroyActionMode(ActionMode mode){
             String n  = name_editText.getText().toString();
             String g  = gender_editText.getText().toString();
-            String a  = age_editText.getText().toString();
+            String a  = age_spinner.getSelectedItem().toString();
             String m = med_editText.getText().toString();
 
             SharedPreferences.Editor editor = settings.edit();
@@ -176,9 +188,11 @@ public class ProfileActivity extends AppCompatActivity {
 
             name_editText.setEnabled(false);
             gender_editText.setEnabled(false);
-            age_editText.setEnabled(false);
+            age_spinner.setEnabled(false);
             med_editText.setEnabled(false);
-            edit_button.setEnabled(true);
+            edit_button.setVisibility(View.VISIBLE);
+
+            mActionMode = null;
         }
 
         @Override
