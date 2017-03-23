@@ -93,15 +93,4 @@
         android:textColor="@color/edittext"
         android:hint="@string/profile_med_hint" />
 
-    <Button
-        android:id="@+id/edit_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/profile_feature_horizontal_margin"
-        android:layout_marginEnd="@dimen/profile_feature_horizontal_margin"
-        android:layout_marginTop="@dimen/profile_feature_vertical_margin_top_narrow"
-        android:layout_marginBottom="@dimen/profile_feature_vertical_margin_bottom_narrow"
-        android:textColor="@color/white"
-        android:background="@drawable/button"
-        android:text="@string/edit" />
 </LinearLayout>
