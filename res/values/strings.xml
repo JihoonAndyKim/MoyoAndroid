@@ -79,6 +79,7 @@
     <string name="profile_name_hint">Name</string>
     <string name="profile_gender_hint">Gender</string>
     <string name="profile_age_hint">Age</string>
+    <string name="profile_med_hint">Medical History</string>
 
     <string name="pro_feature_title">Profile</string>
 </resources>

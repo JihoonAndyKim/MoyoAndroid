@@ -1,44 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/profile_Layout"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".pro.ProfileActivity">
+    tools:context=".pro.ProfileActivity"
+    android:focusable="true"
+    android:clickable="true"
+    android:focusableInTouchMode="true">
+
     <include
         android:id="@+id/toolbar_actionbar"
         layout="@layout/toolbar"/>
 
-    <TextView
-        android:id="@+id/profile_textView"
-        android:layout_width="wrap_content"
+    <ImageView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/profile_title" />
+        app:srcCompat="@drawable/profile"
+        android:paddingTop="@dimen/profile_feature_vertical_margin_top_narrow"
+        android:paddingBottom="@dimen/profile_feature_vertical_margin_bottom_narrow"
+        android:background="@drawable/rounded_imageview"
+        android:id="@+id/imageView" />
 
     <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/name_editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/profile_feature_horizontal_margin"
+        android:layout_marginEnd="@dimen/profile_feature_horizontal_margin"
+        android:layout_marginTop="@dimen/profile_feature_vertical_margin_top_narrow"
+        android:layout_marginBottom="@dimen/profile_feature_vertical_margin_bottom_narrow"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:background="@drawable/rounded_edittext"
+        android:textColor="@color/edittext"
+        android:textStyle="bold"
+        android:gravity="center"
         android:hint="@string/profile_name_hint" />
 
     <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/gender_editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/profile_feature_horizontal_margin"
+        android:layout_marginEnd="@dimen/profile_feature_horizontal_margin"
+        android:layout_marginTop="@dimen/profile_feature_vertical_margin_top_narrow"
+        android:layout_marginBottom="@dimen/profile_feature_vertical_margin_bottom_narrow"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:background="@drawable/rounded_edittext"
+        android:textColor="@color/edittext"
         android:hint="@string/profile_gender_hint" />
 
-    <EditText
-        android:layout_width="wrap_content"
+    <Spinner
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/age_editText"
-        android:hint="@string/profile_age_hint" />
+        android:layout_marginStart="@dimen/profile_feature_horizontal_margin"
+        android:layout_marginEnd="@dimen/profile_feature_horizontal_margin"
+        android:layout_marginTop="@dimen/profile_feature_vertical_margin_top_narrow"
+        android:layout_marginBottom="@dimen/profile_feature_vertical_margin_bottom_narrow"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:background="@drawable/rounded_spinner"
+        android:textColor="#000"
+        android:id="@+id/age_spinner" />
+
+    <EditText
+        android:id="@+id/med_editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="@dimen/profile_feature_horizontal_margin"
+        android:layout_marginEnd="@dimen/profile_feature_horizontal_margin"
+        android:layout_marginTop="@dimen/profile_feature_vertical_margin_top_narrow"
+        android:layout_marginBottom="@dimen/profile_feature_vertical_margin_bottom_narrow"
+        android:gravity="top"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:radius="@dimen/border_radius"
+        android:background="@drawable/rounded_edittext"
+        android:textColor="@color/edittext"
+        android:hint="@string/profile_med_hint" />
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/edit"
         android:id="@+id/edit_button"
-        android:layout_marginTop="29dp" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/profile_feature_horizontal_margin"
+        android:layout_marginEnd="@dimen/profile_feature_horizontal_margin"
+        android:layout_marginTop="@dimen/profile_feature_vertical_margin_top_narrow"
+        android:layout_marginBottom="@dimen/profile_feature_vertical_margin_bottom_narrow"
+        android:textColor="@color/white"
+        android:background="@drawable/button"
+        android:text="@string/edit" />
 </LinearLayout>

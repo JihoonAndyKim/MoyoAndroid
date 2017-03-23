@@ -22,8 +22,8 @@
   -->
 <resources>
     <color name="featureTitleColor">#939597</color>
-    <color name="actionBarColor">#009CDE</color>
-    <color name="actionBarColorDark">#0081B7</color>
+    <color name="actionBarColor">#9F793D</color>
+    <color name="actionBarColorDark">#2D4968</color>
     <color name="backgroundColor">#E6E7E8</color>
     <color name="orange">#DC582A</color>
     <color name="dark_orange">#9E3F1E</color>
@@ -32,6 +32,13 @@
     <color name="headerBackgroundColorDark">#0081B7</color>
     <color name="headerTextColor">#FFFFFF</color>
     <color name="actionBarMenuTextColor">#FFFFFF</color>
-    
+    <color name="white">#FFFFFF</color>
+    <color name="offWhite">#f2f2f2</color>
     <color name="darkGray">#AAABAF</color>
+    <color name="lightGray">#d9d9d9</color>
+    <color name="moyoPrimary">#2D4968</color>
+    <color name="moyoPrimaryDark">#1F2C3B</color>
+    <color name="moyoSecondary">#9F793D</color>
+    <color name="disabledTColor">#000000</color>
+    <color name="enabledTColor">#000000</color>
 </resources>

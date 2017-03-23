@@ -21,7 +21,7 @@
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<!-- Style ot the Toolbar -->
+	<!-- Style of the Toolbar -->
 	<style name="HeaderBar">
 		<item name="android:background">?colorPrimary</item>
 	</style>
@@ -99,6 +99,12 @@
 		<item name="android:paddingRight">40dp</item>
 	</style>
 
+	<style name="Widget.ActionMode">
+		<item name="android:background">@color/actionBarColorDark</item>
+		<item name="android:backgroundSplit">@color/actionBarColorDark</item>
+		<item name="android:height">200dp</item>
+	</style>
+
 	<style name="TextAppearanceTitle" parent="@style/TextAppearance.AppCompat.Caption">
 		<item name="android:textColor">?attr/colorAccent</item>
 		<item name="android:textStyle">bold</item>
@@ -106,26 +112,36 @@
 
 	<!-- Application theme. -->
 	<style name="AppTheme.DialogTheme" parent="@style/Theme.AppCompat.Light.Dialog.Alert">
-		<item name="colorPrimary">@color/actionBarColor</item>
-		<item name="colorPrimaryDark">@color/actionBarColorDark</item>
-		<item name="colorAccent">@color/actionBarColorDark</item>
+		<item name="colorPrimary">@color/moyoPrimary</item>
+		<item name="colorPrimaryDark">@color/moyoPrimaryDark</item>
+		<item name="colorAccent">@color/moyoSecondary</item>
 	</style>
 
 	<style name="AppThemeBase" parent="@style/Theme.AppCompat.Light.NoActionBar">
-		<item name="android:windowBackground">@drawable/background_image</item>
+		<!--<item name="android:windowBackground">@drawable/background_image</item>-->
+		<!--<item name="android:spinnerItemStyle">@style/ActionBar.SpinnerTitle</item>-->
+		<!--<item name="actionMenuTextColor">@color/actionBarMenuTextColor</item>-->
+		<!--<item name="alertDialogTheme">@style/AppTheme.DialogTheme</item>-->
+		<!--<item name="colorPrimary">@color/actionBarColor</item>-->
+		<!--<item name="colorPrimaryDark">@color/actionBarColorDark</item>-->
+		<!--<item name="colorAccent">@color/actionBarColorDark</item>-->
+		<!--<item name="buttonStyle">@style/Widget.Button</item>-->
+		<!--<item name="android:spinnerStyle">@style/Widget.AppCompat.Spinner</item> &lt;!&ndash; Required on pre-Lollipop to draw new spinner. &ndash;&gt;-->
+		<!--<item name="windowActionModeOverlay">true</item>-->
+		<item name="android:windowBackground">@color/moyoPrimary</item>
 		<item name="android:spinnerItemStyle">@style/ActionBar.SpinnerTitle</item>
 		<item name="actionMenuTextColor">@color/actionBarMenuTextColor</item>
 		<item name="alertDialogTheme">@style/AppTheme.DialogTheme</item>
-		<item name="colorPrimary">@color/actionBarColor</item>
-		<item name="colorPrimaryDark">@color/actionBarColorDark</item>
-		<item name="colorAccent">@color/actionBarColorDark</item>
+		<item name="colorPrimary">@color/moyoPrimary</item>
+		<item name="colorPrimaryDark">@color/moyoPrimaryDark</item>
+		<item name="colorAccent">@color/moyoSecondary</item>
 		<item name="buttonStyle">@style/Widget.Button</item>
 		<item name="android:spinnerStyle">@style/Widget.AppCompat.Spinner</item> <!-- Required on pre-Lollipop to draw new spinner. -->
+		<item name="windowActionModeOverlay">true</item>
 	</style>
 
 	<style name="AppTheme" parent="@style/AppThemeBase">
-		<item name="android:selectableItemBackground">@drawable/abc_item_background_holo_light
-		</item>
+		<item name="android:selectableItemBackground">@drawable/abc_item_background_holo_light</item>
 	</style>
 
 	<style name="AppTheme.TranslucentStatusBar">
