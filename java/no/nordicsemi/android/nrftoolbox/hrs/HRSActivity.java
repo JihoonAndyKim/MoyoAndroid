@@ -127,6 +127,8 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 		GridLabelRenderer glr = graph.getGridLabelRenderer();
 		glr.setPadding(64); // should allow for 3 digits to fit on screen
 		graph.addSeries(series);
+		graph.getGridLabelRenderer().setVerticalAxisTitle("Heart Rate");
+
 		graph.getViewport().setXAxisBoundsManual(true);
 		graph.getViewport().setMinX(0);
 		graph.getViewport().setMaxX(10);
@@ -267,7 +269,7 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 
 				mTimeCounter += 1d;
 				//updateData(value);
-				series.appendData(new DataPoint(mTimeCounter, (double) value), true, 30);
+				series.appendData(new DataPoint(mTimeCounter, (double) value), true, 100);
 				/*
 				if (value >= 290 && trigger) {
 
