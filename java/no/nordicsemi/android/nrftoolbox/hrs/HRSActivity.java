@@ -29,6 +29,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
@@ -106,6 +107,8 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 	@Override
 	protected void onCreateView(final Bundle savedInstanceState) {
 		setContentView(R.layout.activity_feature_hrs);
+		if (!ensureBLEExists())
+			finish();
 		setGUI();
 	}
 
@@ -419,4 +422,11 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 		return intentFilter;
 	}
 
+	private boolean ensureBLEExists() {
+		if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+			Toast.makeText(this, R.string.no_ble, Toast.LENGTH_LONG).show();
+			return false;
+		}
+		return true;
+	}
 }
