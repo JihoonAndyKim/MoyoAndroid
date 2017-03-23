@@ -76,8 +76,8 @@ public class FeaturesActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 		// ensure that Bluetooth exists
-//		if (!ensureBLEExists())
-//			finish();
+		if (!ensureBLEExists())
+			finish();
 
 		final DrawerLayout drawer = mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
