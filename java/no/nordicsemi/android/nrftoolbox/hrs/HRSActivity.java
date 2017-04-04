@@ -128,7 +128,12 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 		//mLineGraph = LineGraphView.getLineGraphView();
 		GraphView graph = (GraphView) findViewById(R.id.graph_hrs);
 		GridLabelRenderer glr = graph.getGridLabelRenderer();
+
 		glr.setPadding(64); // should allow for 3 digits to fit on screen
+		glr.setGridColor(R.color.white);
+
+		series.setDrawBackground(true);
+		series.setBackgroundColor(R.color.moyoSecondary);
 		graph.addSeries(series);
 		graph.getGridLabelRenderer().setVerticalAxisTitle("Heart Rate");
 

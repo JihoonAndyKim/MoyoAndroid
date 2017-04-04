@@ -62,14 +62,18 @@ public class IntroActivity extends AppIntro {
         }
         globalIntent = newIntent;
 
-        addSlide(AppIntroFragment.newInstance("T", "s", R.drawable.battery, getResources().getColor(R.color.moyoPrimary)));
-
+        addSlide(AppIntroFragment.newInstance("Welcome to the Moyo Application!", "Swipe right!", R.drawable.battery, getResources().getColor(R.color.slide1)));
+        addSlide(AppIntroFragment.newInstance("EKG Monitoring", "Our application will ensure your safety by connecting to the Moyo with our unique EKG Monitoring feature", R.drawable.battery, getResources().getColor(R.color.slide2)));
+        addSlide(AppIntroFragment.newInstance("Profile", "You can modify your profile so we send accurate data to emergency services", R.drawable.battery, getResources().getColor(R.color.slide3)));
+        addSlide(AppIntroFragment.newInstance("Are you ready?", "Press Done to get started!", R.drawable.battery, getResources().getColor(R.color.slide4)));
 
     }
 
     @Override
     public void onSkipPressed(Fragment currentFragment) {
         super.onSkipPressed(currentFragment);
+        startActivity(globalIntent);
+        finish();
         // Do something when users tap on Skip button.
     }
 
