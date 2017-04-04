@@ -110,6 +110,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         name_editText.setKeyListener(null);
         gender_editText.setKeyListener(null);
+        age_spinner.setClickable(false);
         med_editText.setKeyListener(null);
 
         name_edited = false;
@@ -133,6 +134,14 @@ public class ProfileActivity extends AppCompatActivity {
                 return true;
             }
         });
+        age_spinner.setOnLongClickListener(new View.OnLongClickListener(){
+            @Override
+            public boolean onLongClick(View v){
+                age_edited = true;
+                spinnerLongClicked("Editing Age");
+                return true;
+            }
+        });
         med_editText.setOnLongClickListener(new View.OnLongClickListener(){
             @Override
             public boolean onLongClick(View v){
@@ -153,16 +162,33 @@ public class ProfileActivity extends AppCompatActivity {
         switch (et.getId()){
             case (R.id.name_editText):
                 et.setKeyListener(name_orig_kl);
+                gender_editText.setFocusable(false);
+                age_spinner.setFocusable(false);
+                med_editText.setFocusable(false);
                 break;
             case (R.id.gender_editText):
                 et.setKeyListener(gender_orig_kl);
+                name_editText.setFocusable(false);
+                age_spinner.setFocusable(false);
+                med_editText.setFocusable(false);
                 break;
             case (R.id.med_editText):
                 et.setKeyListener(med_orig_kl);
+                name_editText.setFocusable(false);
+                gender_editText.setFocusable(false);
+                age_spinner.setFocusable(false);
                 break;
         }
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(et, InputMethodManager.HIDE_IMPLICIT_ONLY);
+    }
+
+    public void spinnerLongClicked(String s){
+        editingField = s;
+
+        if(mActionMode == null){
+            mActionMode = ProfileActivity.this.startSupportActionMode(mActionModeCallback);
+        }
     }
 
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback(){
@@ -193,7 +219,8 @@ public class ProfileActivity extends AppCompatActivity {
             else if (age_edited){
                 String a  = age_spinner.getSelectedItem().toString();
                 editor.putString(Age, a);
-                // make uneditable?
+                age_spinner.setClickable(false);
+                age_edited = false;
             }
             else if (med_edited){
                 String m = med_editText.getText().toString();
@@ -204,6 +231,11 @@ public class ProfileActivity extends AppCompatActivity {
             }
 
             editor.apply();
+
+            name_editText.setFocusable(true);
+            gender_editText.setFocusable(true);
+            age_spinner.setFocusable(true);
+            med_editText.setFocusable(true);
 
             // TODO: delete this line
             Toast.makeText(ProfileActivity.this,"Saved!",Toast.LENGTH_LONG).show();
