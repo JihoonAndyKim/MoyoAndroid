@@ -47,6 +47,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.paolorotolo.appintro.AppIntro;
+
 import java.util.List;
 
 import no.nordicsemi.android.nrftoolbox.adapter.AppAdapter;
@@ -74,10 +76,6 @@ public class FeaturesActivity extends AppCompatActivity {
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         setSupportActionBar(toolbar);
-
-		// ensure that Bluetooth exists
-		if (!ensureBLEExists())
-			finish();
 
 		final DrawerLayout drawer = mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -217,13 +215,5 @@ public class FeaturesActivity extends AppCompatActivity {
 			});
 			container.addView(item);
 		}
-	}
-
-	private boolean ensureBLEExists() {
-		if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-			Toast.makeText(this, R.string.no_ble, Toast.LENGTH_LONG).show();
-			return false;
-		}
-		return true;
 	}
 }

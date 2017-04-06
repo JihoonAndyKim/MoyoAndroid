@@ -41,4 +41,11 @@
     <color name="moyoSecondary">#9F793D</color>
     <color name="disabledTColor">#000000</color>
     <color name="enabledTColor">#000000</color>
+    <color name="slide1">#98ff71</color>
+    <color name="slide2">#85ffa5</color>
+    <color name="slide3">#71ffd8</color>
+    <color name="slide4">#71ccec</color>
+    <color name="slide5">#7198ff</color>
+
+
 </resources>
