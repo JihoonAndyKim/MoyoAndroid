@@ -1,18 +1,19 @@
 package no.nordicsemi.android.nrftoolbox.pro;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
+import android.text.method.KeyListener;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -34,9 +35,10 @@ public class ProfileActivity extends AppCompatActivity {
 
     SharedPreferences settings;
     EditText name_editText,gender_editText,med_editText;
+    boolean name_edited, gender_edited, age_edited, med_edited;
+    KeyListener name_orig_kl, gender_orig_kl, med_orig_kl;
     Spinner age_spinner;
     LinearLayout profile_layout;
-    Button edit_button;
     List<String> ageSpinnerArray = new ArrayList<String>();
 
     int ageSpinnerPosition;
@@ -58,7 +60,6 @@ public class ProfileActivity extends AppCompatActivity {
         gender_editText=(EditText)findViewById(R.id.gender_editText);
         age_spinner=(Spinner)findViewById(R.id.age_spinner);
         med_editText=(EditText)findViewById(R.id.med_editText);
-        edit_button=(Button)findViewById(R.id.edit_button);
 
         ageSpinnerArray.add("Select Age");
         for(int i = 0; i <= 120; i= i+1){
@@ -76,7 +77,6 @@ public class ProfileActivity extends AppCompatActivity {
         String g = settings.getString(Gender, Missing);
         String a = settings.getString(Age, Missing);
         String m = settings.getString(Med, Missing);
-
 
         if (!n.equals(Missing)){
             name_editText.setText(n);
@@ -104,56 +104,65 @@ public class ProfileActivity extends AppCompatActivity {
             med_editText.setHint(R.string.profile_med_hint);
         }
 
-        // Make editText fields uneditable
-        name_editText.setEnabled(false);
-        gender_editText.setEnabled(false);
-        age_spinner.setEnabled(false);
-        med_editText.setEnabled(false);
-        edit_button.setVisibility(View.VISIBLE);
+        name_orig_kl = name_editText.getKeyListener();
+        gender_orig_kl = gender_editText.getKeyListener();
+        med_orig_kl = med_editText.getKeyListener();
 
-        edit_button.setOnClickListener(new View.OnClickListener() {
+        name_editText.setKeyListener(null);
+        gender_editText.setKeyListener(null);
+        med_editText.setKeyListener(null);
+
+        name_edited = false;
+        gender_edited = false;
+        age_edited = false;
+        med_edited = false;
+
+        name_editText.setOnLongClickListener(new View.OnLongClickListener(){
             @Override
-            public void onClick(View v) {
-                name_editText.setEnabled(true);
-                gender_editText.setEnabled(true);
-                age_spinner.setEnabled(true);
-                med_editText.setEnabled(true);
-                edit_button.setVisibility(View.GONE);
-
-                editingField = "Edit Profile";
-
-                if(mActionMode == null){
-                    mActionMode = ProfileActivity.this.startSupportActionMode(mActionModeCallback);
-                }
-
-                profile_layout.requestFocus();
+            public boolean onLongClick(View v){
+                name_edited = true;
+                editTextLongClicked(name_editText, "Editing Name");
+                return true;
+            }
+        });
+        gender_editText.setOnLongClickListener(new View.OnLongClickListener(){
+            @Override
+            public boolean onLongClick(View v){
+                gender_edited = true;
+                editTextLongClicked(gender_editText, "Editing Gender");
+                return true;
+            }
+        });
+        med_editText.setOnLongClickListener(new View.OnLongClickListener(){
+            @Override
+            public boolean onLongClick(View v){
+                med_edited = true;
+                editTextLongClicked(med_editText, "Editing Medical Info");
+                return true;
             }
         });
 
-        name_editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    hideKeyboard(v);
-                }
-            }
-        });
-        gender_editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    hideKeyboard(v);
-                }
-            }
-        });
-        med_editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    hideKeyboard(v);
-                }
-            }
-        });
+    }
+
+    public void editTextLongClicked(EditText et, String s){
+        editingField = s;
+
+        if(mActionMode == null){
+            mActionMode = ProfileActivity.this.startSupportActionMode(mActionModeCallback);
+        }
+        switch (et.getId()){
+            case (R.id.name_editText):
+                et.setKeyListener(name_orig_kl);
+                break;
+            case (R.id.gender_editText):
+                et.setKeyListener(gender_orig_kl);
+                break;
+            case (R.id.med_editText):
+                et.setKeyListener(med_orig_kl);
+                break;
+        }
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(et, InputMethodManager.HIDE_IMPLICIT_ONLY);
     }
 
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback(){
@@ -164,25 +173,40 @@ public class ProfileActivity extends AppCompatActivity {
 
         @Override
         public void onDestroyActionMode(ActionMode mode){
-            String n  = name_editText.getText().toString();
-            String g  = gender_editText.getText().toString();
-            String a  = age_spinner.getSelectedItem().toString();
-            String m = med_editText.getText().toString();
 
             SharedPreferences.Editor editor = settings.edit();
 
-            editor.putString(Name, n);
-            editor.putString(Age, a);
-            editor.putString(Gender, g);
-            editor.putString(Med, m);
-            editor.apply();
-            Toast.makeText(ProfileActivity.this,"Saved!",Toast.LENGTH_LONG).show();
+            if (name_edited){
+                String n  = name_editText.getText().toString();
+                editor.putString(Name, n);
+                name_editText.setKeyListener(null);
+                hideKeyboard(name_editText);
+                name_edited = false;
+            }
+            else if (gender_edited){
+                String g  = gender_editText.getText().toString();
+                editor.putString(Gender, g);
+                gender_editText.setKeyListener(null);
+                hideKeyboard(gender_editText);
+                gender_edited = false;
+            }
+            else if (age_spinner.isFocusable()){
+                String a  = age_spinner.getSelectedItem().toString();
+                editor.putString(Age, a);
+                // make uneditable?
+            }
+            else if (med_edited){
+                String m = med_editText.getText().toString();
+                editor.putString(Med, m);
+                med_editText.setKeyListener(null);
+                hideKeyboard(med_editText);
+                med_edited = false;
+            }
 
-            name_editText.setEnabled(false);
-            gender_editText.setEnabled(false);
-            age_spinner.setEnabled(false);
-            med_editText.setEnabled(false);
-            edit_button.setVisibility(View.VISIBLE);
+            editor.apply();
+
+            // TODO: delete this line
+            Toast.makeText(ProfileActivity.this,"Saved!",Toast.LENGTH_LONG).show();
 
             mActionMode = null;
         }
@@ -192,6 +216,7 @@ public class ProfileActivity extends AppCompatActivity {
             mode.setTitle(editingField);
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.profile_menu, menu);
+
             return true;
         }
 
@@ -201,6 +226,13 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
     };
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.activity_profile_menu, menu);
+        return true;
+    }
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -225,9 +257,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void hideKeyboard(View view) {
-        InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        InputMethodManager imm =(InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
-
-
 }
