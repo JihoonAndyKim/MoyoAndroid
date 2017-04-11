@@ -118,13 +118,13 @@
 	</style>
 
 	<style name="AppThemeBase" parent="@style/Theme.AppCompat.Light.NoActionBar">
-		<item name="android:windowBackground">@color/moyoPrimary</item>
+		<item name="android:windowBackground">@color/primary</item>
 		<item name="android:spinnerItemStyle">@style/ActionBar.SpinnerTitle</item>
 		<item name="actionMenuTextColor">@color/actionBarMenuTextColor</item>
 		<item name="alertDialogTheme">@style/AppTheme.DialogTheme</item>
-		<item name="colorPrimary">@color/moyoPrimary</item>
-		<item name="colorPrimaryDark">@color/moyoPrimaryDark</item>
-		<item name="colorAccent">@color/moyoSecondary</item>
+		<item name="colorPrimary">@color/primary</item>
+		<item name="colorPrimaryDark">@color/primaryDark</item>
+		<item name="colorAccent">@color/secondary</item>
 		<item name="buttonStyle">@style/Widget.Button</item>
 		<item name="android:spinnerStyle">@style/Widget.AppCompat.Spinner</item> <!-- Required on pre-Lollipop to draw new spinner. -->
 		<item name="windowActionModeOverlay">true</item>
