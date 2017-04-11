@@ -41,9 +41,18 @@ import no.nordicsemi.android.nrftoolbox.profile.BleManager;
  * Service and reading heart rate values are performed here. HRSActivity implements HRSManagerCallbacks in order to receive callbacks of BluetoothGatt operations
  */
 public class HRSManager extends BleManager<HRSManagerCallbacks> {
+
+	/*
 	public final static UUID HR_SERVICE_UUID = UUID.fromString("0000180D-0000-1000-8000-00805f9b34fb");
 	private static final UUID HR_SENSOR_LOCATION_CHARACTERISTIC_UUID = UUID.fromString("00002A38-0000-1000-8000-00805f9b34fb");
 	private static final UUID HR_CHARACTERISTIC_UUID = UUID.fromString("00002A37-0000-1000-8000-00805f9b34fb");
+	*/
+
+
+	public final static UUID HR_SERVICE_UUID = UUID.fromString("e7bcb0d1-5f0b-427a-8a85-96354da753ee");
+	private static final UUID HR_SENSOR_LOCATION_CHARACTERISTIC_UUID = UUID.fromString("00002A38-0000-1000-8000-00805f9b34fb");
+	private static final UUID HR_CHARACTERISTIC_UUID = UUID.fromString("e7bcecec-5f0b-427a-8a85-96354da753ee");
+
 
 	private BluetoothGattCharacteristic mHRCharacteristic, mHRLocationCharacteristic;
 
