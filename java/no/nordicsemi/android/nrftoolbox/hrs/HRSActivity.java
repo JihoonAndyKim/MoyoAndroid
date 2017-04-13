@@ -62,6 +62,7 @@ import no.nordicsemi.android.nrftoolbox.profile.BleProfileServiceReadyActivity;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
@@ -132,14 +133,20 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 		glr.setPadding(64); // should allow for 3 digits to fit on screen
 		glr.setGridColor(R.color.white);
 
-		series.setDrawBackground(true);
+		//series.setDrawBackground(true);
 		series.setBackgroundColor(R.color.moyoSecondary);
 		graph.addSeries(series);
-		graph.getGridLabelRenderer().setVerticalAxisTitle("Heart Rate");
+		graph.getGridLabelRenderer().setVerticalAxisTitle("");
 
 		graph.getViewport().setXAxisBoundsManual(true);
 		graph.getViewport().setMinX(0);
-		graph.getViewport().setMaxX(10);
+		graph.getViewport().setMaxX(100);
+		graph.getViewport().setMinY(-10);
+		graph.getViewport().setMaxY(10);
+		StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graph);
+		staticLabelsFormatter.setHorizontalLabels(new String[] {"   ", "   "});
+		staticLabelsFormatter.setVerticalLabels(new String[] {"   ", "   "});
+		graph.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
 		graph.getViewport().setScalable(true); // enables horizontal zooming and scrolling
 
 		mHRSValue = (TextView) findViewById(R.id.text_hrs_value);
@@ -147,6 +154,7 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 
 		//Set this to be invisible
 		mHRSPosition.setVisibility(View.INVISIBLE);
+		mHRSValue.setVisibility(View.INVISIBLE);
 		showGraph();
 	}
 
@@ -265,19 +273,27 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 	}
 
 
-	private void setHRSValueOnView(final int value) {
+	private void setHRSValueOnView(final short value[]) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+
+
+				/*
 				if (value >= MIN_POSITIVE_VALUE && value <= MAX_HR_VALUE) {
 					mHRSValue.setText(Integer.toString(value));
 				} else {
 					mHRSValue.setText(R.string.not_available_value);
 				}
+				*/
 
-				mTimeCounter += 1d;
-				//updateData(value);
-				series.appendData(new DataPoint(mTimeCounter, (double) value), true, 100);
+				for(int i = 0; i < 10; i++) {
+					mTimeCounter += 1d;
+					//updateData(value);
+					series.appendData(new DataPoint(mTimeCounter, (double) value[i]), true, 100);
+				}
+
+
 				/*
 				if (value >= 290 && trigger) {
 
@@ -324,18 +340,6 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 		startShowGraph();
 	}
 
-	/*
-	@Override
-	public void onHRSensorPositionFound(final BluetoothDevice device, final String position) {
-		setHRSPositionOnView(position);
-	}
-
-	@Override
-	public void onHRValueReceived(final BluetoothDevice device, int value) {
-		mHrmValue = value;
-		setHRSValueOnView(mHrmValue);
-	}
-	*/
 
 	@Override
 	public void onDeviceDisconnected(final BluetoothDevice device) {
@@ -376,7 +380,7 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 			final String action = intent.getAction();
 
 			if (HRSService.BROADCAST_HRS_MEASUREMENT.equals(action)) {
-				final int value = intent.getIntExtra(HRSService.HRS_VALUE, 0);
+				final short value[] = intent.getShortArrayExtra(HRSService.HRS_VALUE);
 				final String position = intent.getStringExtra(HRSService.HRS_POSITION);
 				// Update GUI
 				setHRSPositionOnView(position);
