@@ -118,8 +118,9 @@
 	</style>
 
 	<style name="AppThemeBase" parent="@style/Theme.AppCompat.Light.NoActionBar">
-		<item name="android:windowBackground">@color/primary</item>
+		<item name="android:windowBackground">@color/offWhite</item>
 		<item name="android:spinnerItemStyle">@style/ActionBar.SpinnerTitle</item>
+		<item name="android:actionModeStyle">@style/Widget.ActionMode</item>
 		<item name="actionMenuTextColor">@color/actionBarMenuTextColor</item>
 		<item name="alertDialogTheme">@style/AppTheme.DialogTheme</item>
 		<item name="colorPrimary">@color/primary</item>

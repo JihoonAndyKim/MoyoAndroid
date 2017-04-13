@@ -34,6 +34,7 @@
     <color name="actionBarMenuTextColor">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
     <color name="offWhite">#f2f2f2</color>
+    <color name="black">#000000</color>
     <color name="darkGray">#AAABAF</color>
     <color name="lightGray">#d9d9d9</color>
     <color name="moyoPrimary">#2D4968</color>
