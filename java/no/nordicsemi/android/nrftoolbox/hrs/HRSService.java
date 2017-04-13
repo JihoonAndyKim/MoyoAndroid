@@ -113,16 +113,33 @@ public class HRSService extends BleProfileService implements HRSManagerCallbacks
     }
 
     @Override
-    public void onHRValueReceived(final BluetoothDevice device, int value) {
+    public void onHRValueReceived(final BluetoothDevice device, byte[] value) {
+        short realVal[] = new short[10];
+        realVal = convertNumber(value);
+
         final Intent broadcast = new Intent(BROADCAST_HRS_MEASUREMENT);
         broadcast.putExtra(EXTRA_DEVICE, device);
-        broadcast.putExtra(HRS_VALUE, value);
+        broadcast.putExtra(HRS_VALUE, realVal);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
 
         if (!mBinded) {
             // Here we may update the notification to display the current temperature.
             // TODO modify the notification here
         }
+    }
+
+    public short[] convertNumber(byte[] value) {
+        short temp[] = new short[10];
+        int j = 0;
+        for(int i = 0; i < 20; i+=2) {
+            temp[j] = twoBytesToShort(value[i+1], value[i]);
+            j++;
+        }
+        return temp;
+    }
+
+    public static short twoBytesToShort(byte b1, byte b2) {
+        return (short) ((b1 << 8) | (b2 & 0xFF));
     }
 
     @Override

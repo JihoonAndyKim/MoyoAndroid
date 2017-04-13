@@ -74,13 +74,14 @@
 				android:layout_height="wrap_content"
 				android:layout_alignParentRight="true"
 				android:layout_marginRight="@dimen/feature_horizontal_margin"
-				android:layout_marginTop="80dp"
+				android:layout_marginTop="40dp"
 				android:ellipsize="end"
 				android:freezesText="true"
 				android:maxLines="1"
 				android:text="@string/not_available_value"
 				android:textSize="45sp"/>
 
+			<!--
 			<no.nordicsemi.android.nrftoolbox.widget.TrebuchetTextView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -90,6 +91,7 @@
 				android:layout_marginTop="-10dp"
 				android:text="@string/hrs_value_unit"
 				android:textSize="16sp"/>
+			-->
 
 			<no.nordicsemi.android.nrftoolbox.widget.TrebuchetTextView
 				android:id="@+id/text_hrs_position"
@@ -97,7 +99,7 @@
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
 				android:layout_marginLeft="@dimen/feature_horizontal_margin"
-				android:layout_marginTop="80dp"
+				android:layout_marginTop="40dp"
 				android:ellipsize="end"
 				android:freezesText="true"
 				android:maxLines="1"
@@ -129,10 +131,10 @@
 			<com.jjoe64.graphview.GraphView
 				android:id="@+id/graph_hrs"
 				android:layout_width="match_parent"
-				android:layout_height="220dp"
+				android:layout_height="270dp"
 				android:layout_below="@id/text_hrs_position"
-				android:layout_marginLeft="@dimen/feature_horizontal_margin"
-				android:layout_marginRight="@dimen/feature_horizontal_margin"
+				android:layout_marginLeft="50dp"
+				android:layout_marginRight="50dp"
 				android:layout_marginTop="25dp" />
 
 			<Button

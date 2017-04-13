@@ -128,12 +128,16 @@ public class HRSManager extends BleManager<HRSManagerCallbacks> {
 		public void onCharacteristicNotified(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
 			Logger.a(mLogSession, "\"" + HeartRateMeasurementParser.parse(characteristic) + "\" received");
 
-			int hrValue;
+			byte hrValue[] = new byte[20];
+			/*
 			if (isHeartRateInUINT16(characteristic.getValue()[0])) {
 				hrValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 1);
 			} else {
 				hrValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 1);
 			}
+			*/
+			hrValue = characteristic.getValue();
+
 			//This will send callback to HRSActivity when new HR value is received from HR device
 			mCallbacks.onHRValueReceived(gatt.getDevice(), hrValue);
 		}
