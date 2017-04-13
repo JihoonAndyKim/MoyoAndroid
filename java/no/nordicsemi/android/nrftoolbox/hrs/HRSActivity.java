@@ -107,8 +107,8 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 	@Override
 	protected void onCreateView(final Bundle savedInstanceState) {
 		setContentView(R.layout.activity_feature_hrs);
-		if (!ensureBLEExists())
-			finish();
+//		if (!ensureBLEExists())
+//			finish();
 		setGUI();
 	}
 

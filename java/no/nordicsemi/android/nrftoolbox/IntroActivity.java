@@ -62,10 +62,10 @@ public class IntroActivity extends AppIntro {
         }
         globalIntent = newIntent;
 
-        addSlide(AppIntroFragment.newInstance("Welcome to the Moyo Application!", "Swipe right!", R.drawable.emily, getResources().getColor(R.color.primary)));
+        addSlide(AppIntroFragment.newInstance("Welcome to the Moyo Application!", "Swipe right!", R.drawable.emily, getResources().getColor(R.color.quaternary)));
         addSlide(AppIntroFragment.newInstance("EKG Monitoring", "Our application will ensure your safety by connecting to the Moyo with our unique EKG Monitoring feature", R.drawable.max, getResources().getColor(R.color.secondary)));
-        addSlide(AppIntroFragment.newInstance("Profile", "You can modify your profile so we send accurate data to emergency services", R.drawable.andy, getResources().getColor(R.color.tertiary)));
-        addSlide(AppIntroFragment.newInstance("Are you ready?", "Press Done to get started!", R.drawable.joe, getResources().getColor(R.color.quaternary)));
+        addSlide(AppIntroFragment.newInstance("Profile", "You can modify your profile so we send accurate data to emergency services", R.drawable.andy, getResources().getColor(R.color.quaternary)));
+        addSlide(AppIntroFragment.newInstance("Are you ready?", "Press Done to get started!", R.drawable.joe, getResources().getColor(R.color.secondary)));
 
     }
 
