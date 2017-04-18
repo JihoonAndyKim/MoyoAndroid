@@ -44,6 +44,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.SharedPreferences;
 
 import org.achartengine.GraphicalView;
 
@@ -293,12 +294,17 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 					series.appendData(new DataPoint(mTimeCounter, (double) value[i]), true, 100);
 				}
 
+				if (trigger) {
 
-				/*
-				if (value >= 290 && trigger) {
+					SharedPreferences settings = getSharedPreferences("ProfileData", MODE_PRIVATE);
+
+					String n = settings.getString("nameKey", "Missing");
+					String g = settings.getString("genderKey", "Missing");
+					String a = settings.getString("ageKey", "Missing");
+					String m = settings.getString("medKey", "Missing");
 
 					String phoneNo = "3039059887";
-					String message = "USER IS UNDERGOING CARDIAC ARREST";
+					String message = String.format("%s is going into cardiac arrest.\nGender: %s\nAge: %s\nMedical Information:\n%s", n, g, a, m);
 					if (phoneNo.length() > 0 && message.length() > 0) {
 						sendSMS(phoneNo, message);
 						Snackbar.make(findViewById(R.id.myCoordinatorLayout), "Emergency services contacted",
@@ -309,9 +315,9 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 						Toast.makeText(getBaseContext(), "Please enter both phone number and message.", Toast.LENGTH_SHORT).show();
 					trigger = false;
 				}
-				if(value < 290) {
-					trigger = true;
-				}*/
+				//if(value < 290) {
+				//	trigger = true;
+				//}
 
 			}
 		});
