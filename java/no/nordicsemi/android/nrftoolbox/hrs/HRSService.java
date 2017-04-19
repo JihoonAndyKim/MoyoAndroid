@@ -43,6 +43,7 @@ import no.nordicsemi.android.nrftoolbox.profile.BleProfileService;
 public class HRSService extends BleProfileService implements HRSManagerCallbacks {
     public static final String BROADCAST_HRS_MEASUREMENT = "no.nordicsemi.android.nrftoolbox.hrs.BROADCAST_HRS_MEASUREMENT";
     public static final String HRS_VALUE = "no.nordicsemi.android.nrftoolbox.hrs.HRS_VALUE";
+    public static final String NEW_HRS_VALUE = "no.nordicsemi.android.nrftoolbox.hrs.NEW_HRS_VALUE";
     public static final String HRS_POSITION = "no.nordicsemi.android.nrftoolbox.hrs.HRS_POSITION";
 
     private final static String ACTION_DISCONNECT = "no.nordicsemi.android.nrftoolbox.hrs.ACTION_DISCONNECT";
@@ -114,12 +115,10 @@ public class HRSService extends BleProfileService implements HRSManagerCallbacks
 
     @Override
     public void onHRValueReceived(final BluetoothDevice device, byte[] value) {
-        short realVal[] = new short[10];
-        realVal = convertNumber(value);
 
         final Intent broadcast = new Intent(BROADCAST_HRS_MEASUREMENT);
         broadcast.putExtra(EXTRA_DEVICE, device);
-        broadcast.putExtra(HRS_VALUE, realVal);
+        broadcast.putExtra(HRS_VALUE, value);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
 
         if (!mBinded) {
@@ -128,14 +127,17 @@ public class HRSService extends BleProfileService implements HRSManagerCallbacks
         }
     }
 
-    public short[] convertNumber(byte[] value) {
-        short temp[] = new short[10];
-        int j = 0;
-        for(int i = 0; i < 20; i+=2) {
-            temp[j] = twoBytesToShort(value[i+1], value[i]);
-            j++;
+    @Override
+    public void onHRValueUpdated(final BluetoothDevice device, int value) {
+        final Intent broadcast = new Intent(BROADCAST_HRS_MEASUREMENT);
+        broadcast.putExtra(EXTRA_DEVICE, device);
+        broadcast.putExtra(NEW_HRS_VALUE, value);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
+
+        if (!mBinded) {
+            // Here we may update the notification to display the current temperature.
+            // TODO modify the notification here
         }
-        return temp;
     }
 
     public static short twoBytesToShort(byte b1, byte b2) {

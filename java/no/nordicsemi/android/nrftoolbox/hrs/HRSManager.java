@@ -50,11 +50,14 @@ public class HRSManager extends BleManager<HRSManagerCallbacks> {
 
 
 	public final static UUID HR_SERVICE_UUID = UUID.fromString("e7bcb0d1-5f0b-427a-8a85-96354da753ee");
-	private static final UUID HR_SENSOR_LOCATION_CHARACTERISTIC_UUID = UUID.fromString("00002A38-0000-1000-8000-00805f9b34fb");
+	private static final UUID HR_SENSOR_LOCATION_CHARACTERISTIC_UUID = UUID.fromString("e7bcfeef-5f0b-427a-8a85-96354da753ee");
 	private static final UUID HR_CHARACTERISTIC_UUID = UUID.fromString("e7bcecec-5f0b-427a-8a85-96354da753ee");
 
+	public final static UUID HR_SERVICE = UUID.fromString("0000180D-0000-1000-8000-00805f9b34fb");
+	private static final UUID HR_CHAR = UUID.fromString("00002A37-0000-1000-8000-00805f9b34fb");
 
-	private BluetoothGattCharacteristic mHRCharacteristic, mHRLocationCharacteristic;
+
+	private BluetoothGattCharacteristic mHRCharacteristic, mHRLocationCharacteristic, mHR;
 
 	private static HRSManager managerInstance = null;
 
@@ -88,6 +91,7 @@ public class HRSManager extends BleManager<HRSManagerCallbacks> {
 			if (mHRLocationCharacteristic != null)
 				requests.add(Request.newReadRequest(mHRLocationCharacteristic));
 			requests.add(Request.newEnableNotificationsRequest(mHRCharacteristic));
+			requests.add(Request.newEnableNotificationsRequest(mHR));
 			return requests;
 		}
 
@@ -106,6 +110,8 @@ public class HRSManager extends BleManager<HRSManagerCallbacks> {
 			if (service != null) {
 				mHRLocationCharacteristic = service.getCharacteristic(HR_SENSOR_LOCATION_CHARACTERISTIC_UUID);
 			}
+			mHR = gatt.getService(HR_SERVICE).getCharacteristic(HR_CHAR);
+
 			return mHRLocationCharacteristic != null;
 		}
 
@@ -122,20 +128,26 @@ public class HRSManager extends BleManager<HRSManagerCallbacks> {
 		protected void onDeviceDisconnected() {
 			mHRLocationCharacteristic = null;
 			mHRCharacteristic = null;
+			mHR = null;
 		}
 
 		@Override
 		public void onCharacteristicNotified(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
 			Logger.a(mLogSession, "\"" + HeartRateMeasurementParser.parse(characteristic) + "\" received");
 
-			byte hrValue[] = new byte[20];
-			/*
-			if (isHeartRateInUINT16(characteristic.getValue()[0])) {
-				hrValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 1);
-			} else {
-				hrValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 1);
+			if(characteristic.getUuid().equals(HR_CHAR)) {
+				int hrValue;
+				if (isHeartRateInUINT16(characteristic.getValue()[0])) {
+					hrValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 1);
+				} else {
+					hrValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 1);
+				}
+
+				mCallbacks.onHRValueUpdated(gatt.getDevice(), hrValue);
+				return;
 			}
-			*/
+
+			byte hrValue[] = new byte[20];
 			hrValue = characteristic.getValue();
 
 			//This will send callback to HRSActivity when new HR value is received from HR device

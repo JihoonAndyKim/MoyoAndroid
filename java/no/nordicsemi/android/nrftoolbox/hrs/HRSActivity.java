@@ -142,20 +142,25 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 		graph.getViewport().setXAxisBoundsManual(true);
 		graph.getViewport().setMinX(0);
 		graph.getViewport().setMaxX(100);
-		graph.getViewport().setMinY(-10);
-		graph.getViewport().setMaxY(10);
+		// set manual Y bounds
+		graph.getViewport().setYAxisBoundsManual(true);
+		graph.getViewport().setMinY(0);
+		graph.getViewport().setMaxY(5000);
+
 		StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graph);
 		staticLabelsFormatter.setHorizontalLabels(new String[] {"   ", "   "});
 		staticLabelsFormatter.setVerticalLabels(new String[] {"   ", "   "});
 		graph.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
+
 		graph.getViewport().setScalable(true); // enables horizontal zooming and scrolling
+		graph.getViewport().setScalableY(false);
 
 		mHRSValue = (TextView) findViewById(R.id.text_hrs_value);
 		mHRSPosition = (TextView) findViewById(R.id.text_hrs_position);
 
 		//Set this to be invisible
-		mHRSPosition.setVisibility(View.INVISIBLE);
-		mHRSValue.setVisibility(View.INVISIBLE);
+		//mHRSPosition.setVisibility(View.INVISIBLE);
+		//mHRSValue.setVisibility(View.INVISIBLE);
 		showGraph();
 	}
 
@@ -273,25 +278,15 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 		// not used
 	}
 
-
-	private void setHRSValueOnView(final short value[]) {
+	private void setHRSValue(final int value) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 
-
-				/*
 				if (value >= MIN_POSITIVE_VALUE && value <= MAX_HR_VALUE) {
 					mHRSValue.setText(Integer.toString(value));
 				} else {
 					mHRSValue.setText(R.string.not_available_value);
-				}
-				*/
-
-				for(int i = 0; i < 10; i++) {
-					mTimeCounter += 1d;
-					//updateData(value);
-					series.appendData(new DataPoint(mTimeCounter, (double) value[i]), true, 100);
 				}
 
 				if (trigger) {
@@ -318,6 +313,24 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 				//if(value < 290) {
 				//	trigger = true;
 				//}
+
+			}
+		});
+	}
+
+	private void setHRSValueOnView(final byte value[]) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				short realVal[] = new short[10];
+
+				realVal = convertNumber(value);
+				for(int i = 0; i < 10; i++) {
+
+					mTimeCounter += 1d;
+					//updateData(value);
+					series.appendData(new DataPoint(mTimeCounter, (double) realVal[i]), true, 100);
+				}
 
 			}
 		});
@@ -380,17 +393,37 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 		mHrmValue = 0;
 	}
 
+	public short[] convertNumber(byte[] value) {
+		short temp[] = new short[10];
+		int j = 0;
+		for(int i = 0; i < 20; i+=2) {
+			temp[j] = twoBytesToShort(value[i], value[i+1]);
+			j++;
+		}
+		return temp;
+	}
+
+	public static short twoBytesToShort(byte b1, byte b2) {
+		return (short) ((b1 << 8) | (b2 & 0xFF));
+	}
+
 	private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
 			final String action = intent.getAction();
 
 			if (HRSService.BROADCAST_HRS_MEASUREMENT.equals(action)) {
-				final short value[] = intent.getShortArrayExtra(HRSService.HRS_VALUE);
+				final byte value[] = intent.getByteArrayExtra(HRSService.HRS_VALUE);
 				final String position = intent.getStringExtra(HRSService.HRS_POSITION);
+				final int hrVal = intent.getIntExtra(HRSService.NEW_HRS_VALUE, 0);
 				// Update GUI
-				setHRSPositionOnView(position);
-				setHRSValueOnView(value);
+				if(position != null)
+					setHRSPositionOnView(position);
+				if(value != null)
+					setHRSValueOnView(value);
+				if(hrVal > 0) {
+					setHRSValue(hrVal);
+				}
 			}
 		}
 	};
