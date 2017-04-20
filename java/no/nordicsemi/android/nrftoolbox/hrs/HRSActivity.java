@@ -33,6 +33,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
@@ -48,9 +49,12 @@ import android.content.SharedPreferences;
 
 import org.achartengine.GraphicalView;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 import java.util.UUID;
 
+import no.nordicsemi.android.log.Logger;
 import no.nordicsemi.android.nrftoolbox.FeaturesActivity;
 import no.nordicsemi.android.nrftoolbox.R;
 import no.nordicsemi.android.nrftoolbox.hrs.HRSService;
@@ -106,6 +110,8 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 	private int countOnPlot = 20;
 	DataPoint[] values = new DataPoint[countOnPlot];
 
+	private Queue<Integer> fifo = new LinkedList<Integer>();
+
 	@Override
 	protected void onCreateView(final Bundle savedInstanceState) {
 		setContentView(R.layout.activity_feature_hrs);
@@ -141,21 +147,28 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 
 		graph.getViewport().setXAxisBoundsManual(true);
 		graph.getViewport().setMinX(0);
-		graph.getViewport().setMaxX(100);
-		graph.getViewport().setMinY(-10);
-		graph.getViewport().setMaxY(10);
+		graph.getViewport().setMaxX(10);
+		// set manual Y bounds
+		graph.getViewport().setYAxisBoundsManual(true);
+		graph.getViewport().setMinY(-10000);
+		graph.getViewport().setMaxY(10000);
+
+		/*
 		StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graph);
 		staticLabelsFormatter.setHorizontalLabels(new String[] {"   ", "   "});
 		staticLabelsFormatter.setVerticalLabels(new String[] {"   ", "   "});
 		graph.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
+		*/
+
 		graph.getViewport().setScalable(true); // enables horizontal zooming and scrolling
+		graph.getViewport().setScalableY(false);
 
 		mHRSValue = (TextView) findViewById(R.id.text_hrs_value);
 		mHRSPosition = (TextView) findViewById(R.id.text_hrs_position);
 
 		//Set this to be invisible
-		mHRSPosition.setVisibility(View.INVISIBLE);
-		mHRSValue.setVisibility(View.INVISIBLE);
+		//mHRSPosition.setVisibility(View.INVISIBLE);
+		//mHRSValue.setVisibility(View.INVISIBLE);
 		showGraph();
 	}
 
@@ -273,52 +286,37 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 		// not used
 	}
 
-
-	private void setHRSValueOnView(final short value[]) {
+	private void setHRSValue(final int value) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 
-
-				/*
 				if (value >= MIN_POSITIVE_VALUE && value <= MAX_HR_VALUE) {
 					mHRSValue.setText(Integer.toString(value));
 				} else {
 					mHRSValue.setText(R.string.not_available_value);
 				}
-				*/
 
-				for(int i = 0; i < 10; i++) {
+			}
+		});
+	}
+
+	private void setHRSValueOnView() {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				//short realVal[] = new short[10];
+				while(!fifo.isEmpty()) {
+					//realVal = convertNumber(value);
+					int firstByte = fifo.remove();
+					int secondByte = fifo.remove();
+					short val = twoBytesToShort((byte) secondByte, (byte) firstByte);
+
 					mTimeCounter += 1d;
 					//updateData(value);
-					series.appendData(new DataPoint(mTimeCounter, (double) value[i]), true, 100);
+					series.appendData(new DataPoint(mTimeCounter/30, (double) val), true, 1000);
+					mHandler.postDelayed(this, 1000);
 				}
-
-				if (trigger) {
-
-					SharedPreferences settings = getSharedPreferences("ProfileData", MODE_PRIVATE);
-
-					String n = settings.getString("nameKey", "Missing");
-					String g = settings.getString("genderKey", "Missing");
-					String a = settings.getString("ageKey", "Missing");
-					String m = settings.getString("medKey", "Missing");
-
-					String phoneNo = "3039059887";
-					String message = String.format("%s is going into cardiac arrest.\nGender: %s\nAge: %s\nMedical Information:\n%s", n, g, a, m);
-					if (phoneNo.length() > 0 && message.length() > 0) {
-						sendSMS(phoneNo, message);
-						Snackbar.make(findViewById(R.id.myCoordinatorLayout), "Emergency services contacted",
-								Snackbar.LENGTH_SHORT)
-								.show();
-					}
-					else
-						Toast.makeText(getBaseContext(), "Please enter both phone number and message.", Toast.LENGTH_SHORT).show();
-					trigger = false;
-				}
-				//if(value < 290) {
-				//	trigger = true;
-				//}
-
 			}
 		});
 	}
@@ -331,6 +329,27 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 					mHRSPosition.setText(position);
 				} else {
 					mHRSPosition.setText(R.string.not_available);
+				}
+
+				if (position.equals("Danger")) {
+
+					SharedPreferences settings = getSharedPreferences("ProfileData", MODE_PRIVATE);
+
+					String n = settings.getString("nameKey", "Missing");
+					String g = settings.getString("genderKey", "Missing");
+					String a = settings.getString("ageKey", "Missing");
+					String m = settings.getString("medKey", "Missing");
+
+					String phoneNo = "3039416813";
+					String message = String.format("%s is going into cardiac arrest.\nGender: %s\nAge: %s\nMedical Information:\n%s", n, g, a, m);
+					if (phoneNo.length() > 0 && message.length() > 0) {
+						sendSMS(phoneNo, message);
+						Snackbar.make(findViewById(R.id.myCoordinatorLayout), "Emergency services contacted",
+								Snackbar.LENGTH_SHORT)
+								.show();
+					}
+					else
+						Toast.makeText(getBaseContext(), "Please enter both phone number and message.", Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
@@ -380,17 +399,32 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 		mHrmValue = 0;
 	}
 
+	public static short twoBytesToShort(byte b1, byte b2) {
+		return (short) ((b1 << 8) | (b2 & 0xFF));
+	}
+
 	private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
 			final String action = intent.getAction();
 
 			if (HRSService.BROADCAST_HRS_MEASUREMENT.equals(action)) {
-				final short value[] = intent.getShortArrayExtra(HRSService.HRS_VALUE);
+				final byte value[] = intent.getByteArrayExtra(HRSService.HRS_VALUE);
 				final String position = intent.getStringExtra(HRSService.HRS_POSITION);
+				final int hrVal = intent.getIntExtra(HRSService.NEW_HRS_VALUE, 0);
 				// Update GUI
-				setHRSPositionOnView(position);
-				setHRSValueOnView(value);
+				if(position != null)
+					setHRSPositionOnView(position);
+				if(value != null) {
+					for (int i = 0; i < value.length; i++)
+						fifo.add(new Integer (value[i]));
+					//while(!fifo.isEmpty()){
+						setHRSValueOnView();
+					//}
+				}
+				if(hrVal > 0) {
+					setHRSValue(hrVal);
+				}
 			}
 		}
 	};

@@ -31,13 +31,8 @@
     <string name="hrs_position_label">sensor position</string>
     
     <string-array name="hrs_locations">
-        <item>Other</item>
-        <item>Chest</item>
-        <item>Wrist</item>
-        <item>Finger</item>
-        <item>Hand</item>
-        <item>Ear Lobe</item>
-        <item>Foot</item>
+        <item>Healthy</item>
+        <item>Danger</item>
     </string-array>
     <string name="hrs_location_other">Reserved</string>
     
