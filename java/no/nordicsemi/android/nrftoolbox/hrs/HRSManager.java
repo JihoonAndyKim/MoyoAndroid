@@ -56,8 +56,8 @@ public class HRSManager extends BleManager<HRSManagerCallbacks> {
 	public final static UUID HR_SERVICE = UUID.fromString("0000180D-0000-1000-8000-00805f9b34fb");
 	private static final UUID HR_CHAR = UUID.fromString("00002A37-0000-1000-8000-00805f9b34fb");
 
-
-	private BluetoothGattCharacteristic mHRCharacteristic, mHRLocationCharacteristic, mHR;
+	private BluetoothGattCharacteristic mHRCharacteristic, mHRLocationCharacteristic, mHR, mHRNewChar;
+	private byte tempVal;
 
 	private static HRSManager managerInstance = null;
 
@@ -90,6 +90,7 @@ public class HRSManager extends BleManager<HRSManagerCallbacks> {
 			final LinkedList<Request> requests = new LinkedList<>();
 			if (mHRLocationCharacteristic != null)
 				requests.add(Request.newReadRequest(mHRLocationCharacteristic));
+			requests.add(Request.newEnableNotificationsRequest(mHRLocationCharacteristic));
 			requests.add(Request.newEnableNotificationsRequest(mHRCharacteristic));
 			requests.add(Request.newEnableNotificationsRequest(mHR));
 			return requests;
@@ -101,6 +102,7 @@ public class HRSManager extends BleManager<HRSManagerCallbacks> {
 			if (service != null) {
 				mHRCharacteristic = service.getCharacteristic(HR_CHARACTERISTIC_UUID);
 			}
+			mHRLocationCharacteristic = gatt.getService(HR_SERVICE_UUID).getCharacteristic(HR_SENSOR_LOCATION_CHARACTERISTIC_UUID);
 			return mHRCharacteristic != null;
 		}
 
@@ -147,8 +149,18 @@ public class HRSManager extends BleManager<HRSManagerCallbacks> {
 				return;
 			}
 
+			if((mHRLocationCharacteristic.getValue()[0] & 0xFF) != (tempVal & 0xFF)) {
+				final String sensorPosition = getBodySensorPosition(mHRLocationCharacteristic.getValue()[0]);
+				//This will send callback to HRSActivity when HR sensor position on body is found in HR device
+				tempVal = mHRLocationCharacteristic.getValue()[0];
+				mCallbacks.onHRSensorPositionFound(gatt.getDevice(), sensorPosition);
+				return;
+			}
+
 			byte hrValue[] = new byte[20];
 			hrValue = characteristic.getValue();
+
+			tempVal = mHRLocationCharacteristic.getValue()[0];
 
 			//This will send callback to HRSActivity when new HR value is received from HR device
 			mCallbacks.onHRValueReceived(gatt.getDevice(), hrValue);
@@ -159,10 +171,21 @@ public class HRSManager extends BleManager<HRSManagerCallbacks> {
 	 * This method will decode and return Heart rate sensor position on body
 	 */
 	private String getBodySensorPosition(final byte bodySensorPositionValue) {
+		int val;
+		switch(bodySensorPositionValue) {
+			case 0x48:
+				val = 0;
+				break;
+			case 0x46:
+				val = 1;
+				break;
+			default:
+				val = 0;
+				break;
+		}
+
 		final String[] locations = getContext().getResources().getStringArray(R.array.hrs_locations);
-		if (bodySensorPositionValue > locations.length)
-			return getContext().getString(R.string.hrs_location_other);
-		return locations[bodySensorPositionValue];
+		return locations[val];
 	}
 
 	/**

@@ -131,10 +131,10 @@
 			<com.jjoe64.graphview.GraphView
 				android:id="@+id/graph_hrs"
 				android:layout_width="match_parent"
-				android:layout_height="270dp"
+				android:layout_height="320dp"
 				android:layout_below="@id/text_hrs_position"
-				android:layout_marginLeft="50dp"
-				android:layout_marginRight="50dp"
+				android:layout_marginLeft="5dp"
+				android:layout_marginRight="20dp"
 				android:layout_marginTop="25dp" />
 
 			<Button

@@ -33,6 +33,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
@@ -48,9 +49,12 @@ import android.content.SharedPreferences;
 
 import org.achartengine.GraphicalView;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 import java.util.UUID;
 
+import no.nordicsemi.android.log.Logger;
 import no.nordicsemi.android.nrftoolbox.FeaturesActivity;
 import no.nordicsemi.android.nrftoolbox.R;
 import no.nordicsemi.android.nrftoolbox.hrs.HRSService;
@@ -106,6 +110,8 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 	private int countOnPlot = 20;
 	DataPoint[] values = new DataPoint[countOnPlot];
 
+	private Queue<Integer> fifo = new LinkedList<Integer>();
+
 	@Override
 	protected void onCreateView(final Bundle savedInstanceState) {
 		setContentView(R.layout.activity_feature_hrs);
@@ -141,16 +147,18 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 
 		graph.getViewport().setXAxisBoundsManual(true);
 		graph.getViewport().setMinX(0);
-		graph.getViewport().setMaxX(100);
+		graph.getViewport().setMaxX(10);
 		// set manual Y bounds
 		graph.getViewport().setYAxisBoundsManual(true);
-		graph.getViewport().setMinY(0);
-		graph.getViewport().setMaxY(5000);
+		graph.getViewport().setMinY(-10000);
+		graph.getViewport().setMaxY(10000);
 
+		/*
 		StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graph);
 		staticLabelsFormatter.setHorizontalLabels(new String[] {"   ", "   "});
 		staticLabelsFormatter.setVerticalLabels(new String[] {"   ", "   "});
 		graph.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
+		*/
 
 		graph.getViewport().setScalable(true); // enables horizontal zooming and scrolling
 		graph.getViewport().setScalableY(false);
@@ -289,49 +297,26 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 					mHRSValue.setText(R.string.not_available_value);
 				}
 
-				if (trigger) {
-
-					SharedPreferences settings = getSharedPreferences("ProfileData", MODE_PRIVATE);
-
-					String n = settings.getString("nameKey", "Missing");
-					String g = settings.getString("genderKey", "Missing");
-					String a = settings.getString("ageKey", "Missing");
-					String m = settings.getString("medKey", "Missing");
-
-					String phoneNo = "3039059887";
-					String message = String.format("%s is going into cardiac arrest.\nGender: %s\nAge: %s\nMedical Information:\n%s", n, g, a, m);
-					if (phoneNo.length() > 0 && message.length() > 0) {
-						sendSMS(phoneNo, message);
-						Snackbar.make(findViewById(R.id.myCoordinatorLayout), "Emergency services contacted",
-								Snackbar.LENGTH_SHORT)
-								.show();
-					}
-					else
-						Toast.makeText(getBaseContext(), "Please enter both phone number and message.", Toast.LENGTH_SHORT).show();
-					trigger = false;
-				}
-				//if(value < 290) {
-				//	trigger = true;
-				//}
-
 			}
 		});
 	}
 
-	private void setHRSValueOnView(final byte value[]) {
+	private void setHRSValueOnView() {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				short realVal[] = new short[10];
-
-				realVal = convertNumber(value);
-				for(int i = 0; i < 10; i++) {
+				//short realVal[] = new short[10];
+				while(!fifo.isEmpty()) {
+					//realVal = convertNumber(value);
+					int firstByte = fifo.remove();
+					int secondByte = fifo.remove();
+					short val = twoBytesToShort((byte) secondByte, (byte) firstByte);
 
 					mTimeCounter += 1d;
 					//updateData(value);
-					series.appendData(new DataPoint(mTimeCounter, (double) realVal[i]), true, 100);
+					series.appendData(new DataPoint(mTimeCounter/30, (double) val), true, 1000);
+					mHandler.postDelayed(this, 1000);
 				}
-
 			}
 		});
 	}
@@ -344,6 +329,27 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 					mHRSPosition.setText(position);
 				} else {
 					mHRSPosition.setText(R.string.not_available);
+				}
+
+				if (position.equals("Danger")) {
+
+					SharedPreferences settings = getSharedPreferences("ProfileData", MODE_PRIVATE);
+
+					String n = settings.getString("nameKey", "Missing");
+					String g = settings.getString("genderKey", "Missing");
+					String a = settings.getString("ageKey", "Missing");
+					String m = settings.getString("medKey", "Missing");
+
+					String phoneNo = "3039416813";
+					String message = String.format("%s is going into cardiac arrest.\nGender: %s\nAge: %s\nMedical Information:\n%s", n, g, a, m);
+					if (phoneNo.length() > 0 && message.length() > 0) {
+						sendSMS(phoneNo, message);
+						Snackbar.make(findViewById(R.id.myCoordinatorLayout), "Emergency services contacted",
+								Snackbar.LENGTH_SHORT)
+								.show();
+					}
+					else
+						Toast.makeText(getBaseContext(), "Please enter both phone number and message.", Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
@@ -393,16 +399,6 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 		mHrmValue = 0;
 	}
 
-	public short[] convertNumber(byte[] value) {
-		short temp[] = new short[10];
-		int j = 0;
-		for(int i = 0; i < 20; i+=2) {
-			temp[j] = twoBytesToShort(value[i], value[i+1]);
-			j++;
-		}
-		return temp;
-	}
-
 	public static short twoBytesToShort(byte b1, byte b2) {
 		return (short) ((b1 << 8) | (b2 & 0xFF));
 	}
@@ -419,8 +415,13 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 				// Update GUI
 				if(position != null)
 					setHRSPositionOnView(position);
-				if(value != null)
-					setHRSValueOnView(value);
+				if(value != null) {
+					for (int i = 0; i < value.length; i++)
+						fifo.add(new Integer (value[i]));
+					//while(!fifo.isEmpty()){
+						setHRSValueOnView();
+					//}
+				}
 				if(hrVal > 0) {
 					setHRSValue(hrVal);
 				}
