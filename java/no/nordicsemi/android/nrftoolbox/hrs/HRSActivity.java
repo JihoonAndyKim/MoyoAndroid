@@ -21,6 +21,7 @@
  */
 package no.nordicsemi.android.nrftoolbox.hrs;
 
+import android.Manifest;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
@@ -36,6 +37,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
@@ -117,6 +119,7 @@ public class HRSActivity extends BleProfileServiceReadyActivity<HRSService.RSCBi
 		setContentView(R.layout.activity_feature_hrs);
 //		if (!ensureBLEExists())
 //			finish();
+		ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.SEND_SMS},1);
 		setGUI();
 	}
 
